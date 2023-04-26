@@ -28,12 +28,10 @@ catkin_make
 and then open two terminals:
 ```
 roslaunch xsens_mti_driver xsens_mti_node.launch
-
 ```
 and then
 ```
 roslaunch ntrip ntrip.launch
-
 ```
 
 
