@@ -66,7 +66,7 @@ namespace libntrip
             gga_buffer_ = gga_buffer;
             gga_is_update_.store(true);
             //print the gga_buffer_
-            printf("ntrip_client.h, line 70:gga_buffer_: %s\n", gga_buffer_.c_str());
+            //printf("ntrip_client.h, line 70:gga_buffer_: %s\n", gga_buffer_.c_str());
         }
         
         // // set fixed location 
