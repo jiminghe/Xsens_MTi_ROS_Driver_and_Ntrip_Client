@@ -228,7 +228,7 @@ namespace libntrip
 
                 if (gnss_data_received_) // Modify the condition here
                 {
-                    printf("ntrip_client.cpp, line 231: gga_buffer_ is %s!\n", gga_buffer_.c_str());
+                    printf("ntrip_client.cpp, line 231: send GPGGA to Ntrip Caster: %s!\n", gga_buffer_.c_str());
                     send(socket_fd_, gga_buffer_.c_str(), gga_buffer_.size(), 0);
                 }
                 send(socket_fd_, gga_buffer_.c_str(), gga_buffer_.size(), 0);
