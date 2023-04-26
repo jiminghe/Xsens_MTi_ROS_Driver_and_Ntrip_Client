@@ -25,6 +25,15 @@ cd ~/catkin_ws
 pushd src/xsens_ros_mti_driver/lib/xspublic && make && popd
 catkin_make
 ```
+and then open two terminals:
+```
+roslaunch xsens_mti_driver xsens_mti_node.launch
 
+```
+and then
+```
+roslaunch ntrip ntrip.launch
+
+```
 
 
