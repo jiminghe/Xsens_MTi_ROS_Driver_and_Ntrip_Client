@@ -2,7 +2,7 @@
 # Xsens MTi ROS Driver and Ntrip Client
 
 This code was based on the official ROS Driver and tested on MTi-680.
-Note: the Pvt Data needs to be enabled: MT Manager - Device Settings - Output Configuration - GNSS Data , select "Pvt Data", click "Apply"
+### Note: the Pvt Data needs to be enabled: MT Manager - Device Settings - Output Configuration - GNSS Data , select "Pvt Data", click "Apply"
 
 ## Changes made to the MTi ROS Driver:
 
