@@ -22,9 +22,7 @@ NtripClient ntrip_client; // Make ntrip_client a global variable
 void gnssCallback(const nmea_msgs::Sentence &msg)
 {
     nmea_msg = msg;
-    // printf("BHE, client.cpp, line 25: latitude %f!\n", latitude);
     ntrip_client.set_gga_buffer(nmea_msg.sentence);
-    // ntrip_client.set_location(latitude, longitude, height); // Update ntrip_client's location inside the callback
     ntrip_client.SetGnssDataReceived(true); // Add this line to indicate that GNSS data has been received
 }
 
