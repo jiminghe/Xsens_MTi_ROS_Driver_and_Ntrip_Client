@@ -10,7 +10,7 @@ This code was based on the official ROS Driver and tested on MTi-680.
  - add nmeapublisher.h under src/messagepublisher folder, to send GPGGA message, /nmea rostopic.
 
 change:
- - lib/xspublic/xscontroller/iointerface.h, line 138, change to PO_OneStopBIt for PO_XsensDEfaults.
+ - lib/xspublic/xscontroller/iointerface.h, line 138, change to PO_OneStopBIt for PO_XsensDefaults.
  - lib/xspublic/xscommon/threading.cpp, line 387 to 408, change the threading behavior, this will be useful for ubuntu 22 OS.
 
 ## Ntrip_Client
