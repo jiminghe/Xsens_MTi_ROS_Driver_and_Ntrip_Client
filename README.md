@@ -2,11 +2,12 @@
 # Xsens MTi ROS Driver and Ntrip Client
 
 This code was based on the official ROS Driver and tested on MTi-680.
+Note: the Pvt Data needs to be enabled: MT Manager - Device Settings - Output Configuration - GNSS Data , select "Pvt Data", click "Apply"
 
 ## Changes made to the MTi ROS Driver:
 
-+add ntrip_util.h and ntrip_util.cpp under lib/xspublic/xscommon
-+add nmeapublisher.h under src/messagepublisher folder, to send GPGGA message, /nmea rostopic.
+ - +add ntrip_util.h and ntrip_util.cpp under lib/xspublic/xscommon
+ - +add nmeapublisher.h under src/messagepublisher folder, to send GPGGA message, /nmea rostopic.
 
 change:
 1. lib/xspublic/xscontroller/iointerface.h, line 138, change to PO_OneStopBIt for PO_XsensDEfaults.
