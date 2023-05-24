@@ -11,7 +11,7 @@
 
   <license>BSD</license>
 
-  <author email="">Bryan He</author>
+  <author email="support@movella.com">Bryan He</author>
   
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>geometry_msgs</build_depend>
