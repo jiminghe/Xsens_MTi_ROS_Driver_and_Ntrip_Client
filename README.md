@@ -54,6 +54,7 @@ save the file, exit.
 
 ## How to Use:
 change the credentials/servers/mountpoint in ``src/ntrip/launch/ntrip.launch`` to your own one.
+
 currently, you could only fill in the IP address(like 3.143.243.81:2101), instead of the URL(rtk2go.com:2101).
 
 
