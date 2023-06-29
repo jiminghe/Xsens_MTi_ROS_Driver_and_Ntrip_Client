@@ -30,6 +30,9 @@
 
 #include "thread_raii.h"
 
+#include <netdb.h>
+#include <sys/types.h>
+
 namespace libntrip
 {
 
@@ -119,6 +122,7 @@ namespace libntrip
         ClientCallback callback_ = [](char const *, int) -> void {};
         //check if gnss is received
         bool gnss_data_received_ = false;
+        bool resolve_hostname(const std::string& hostname, sockaddr_in& addr);
     };
 
 } // namespace libntrip
