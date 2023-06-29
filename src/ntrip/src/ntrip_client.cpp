@@ -45,6 +45,8 @@
 #include "ntrip_util.h"
 #include "cmake_definition.h"
 
+
+
 namespace libntrip
 {
 
@@ -79,7 +81,11 @@ namespace libntrip
         memset(&server_addr, 0, sizeof(server_addr));
         server_addr.sin_family = AF_INET;
         server_addr.sin_port = htons(server_port_);
-        server_addr.sin_addr.s_addr = inet_addr(server_ip_.c_str());
+        if (!resolve_hostname(server_ip_, server_addr)) 
+        {
+            printf("Failed to resolve server IP/hostname\n");
+            return false;
+        }
         int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
         if (socket_fd == -1)
         {
@@ -238,5 +244,29 @@ namespace libntrip
         printf("NtripClient service done.\n");
         service_is_running_.store(false);
     }
+
+    bool NtripClient::resolve_hostname(const std::string& hostname, sockaddr_in& addr) 
+    {
+        struct addrinfo hints, *res;
+        int err;
+
+        memset(&hints, 0, sizeof(hints));
+        hints.ai_family = AF_INET;  // Use AF_INET to force IPv4
+        hints.ai_socktype = SOCK_STREAM;
+
+        err = getaddrinfo(hostname.c_str(), NULL, &hints, &res);
+        if (err != 0) {
+            printf("Failed to resolve hostname, error: %s\n", gai_strerror(err));
+            return false;
+        }
+
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(server_port_);
+        addr.sin_addr = ((struct sockaddr_in*)res->ai_addr)->sin_addr;
+
+        freeaddrinfo(res);  // Free memory allocated by getaddrinfo
+        return true;
+    }
+
 
 } // namespace libntrip
