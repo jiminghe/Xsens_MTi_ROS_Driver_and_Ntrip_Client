@@ -48,7 +48,7 @@ sudo nano ~/.bashrc
 ```
 At the end of the file, add the following line:
 ```
-source ./devel/setup.bash
+source /[PATH_TO_Your_catkin_ws]/devel/setup.bash
 ```
 save the file, exit.
 
