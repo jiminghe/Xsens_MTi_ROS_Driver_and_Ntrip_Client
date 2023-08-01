@@ -127,7 +127,7 @@ namespace libntrip
             return false;
         }
         // Waitting for request to connect caster success.
-        int timeout = 3;
+        int timeout = 60;
         while (timeout--)
         {
             ret = recv(socket_fd, buffer.get(), kBufferSize, 0);
