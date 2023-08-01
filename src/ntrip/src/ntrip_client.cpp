@@ -126,8 +126,8 @@ namespace libntrip
             close(socket_fd);
             return false;
         }
-        // Waitting for request to connect caster success.
-        int timeout = 60;
+        // Waitting maximum 300sec, for request to connect caster success. If no data sent to server(or no response), shut down the NTRIP Client.
+        int timeout = 300;
         while (timeout--)
         {
             ret = recv(socket_fd, buffer.get(), kBufferSize, 0);
