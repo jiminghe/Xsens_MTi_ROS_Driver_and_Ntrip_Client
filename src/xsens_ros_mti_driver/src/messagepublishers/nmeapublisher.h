@@ -32,11 +32,11 @@
 #include <cmath>
 #include <xscommon/ntrip_util.h>
 
-
 struct NMEAPublisher : public PacketCallback
 {
     ros::Publisher pub;
     std::string frame_id = DEFAULT_FRAME_ID;
+    ros::Time last_published_time;
 
     NMEAPublisher(ros::NodeHandle &node)
     {
@@ -48,23 +48,89 @@ struct NMEAPublisher : public PacketCallback
 
     void operator()(const XsDataPacket &packet, ros::Time timestamp)
     {
-        if (packet.containsRawGnssPvtData())
+        // Get the current time
+        ros::Time current_time = ros::Time::now();
+
+        // Calculate the time difference from the last published message
+        double time_difference = (current_time - last_published_time).toSec();
+
+        // If it has been at least 1 second since the last published message
+        if (time_difference >= 1.0)
         {
+            // Reset the last published time
+            last_published_time = current_time;
 
             nmea_msgs::Sentence nmea_msg;
-            
+
             nmea_msg.header.stamp = timestamp;
             nmea_msg.header.frame_id = frame_id;
 
-            XsRawGnssPvtData gnssPvtData = packet.rawGnssPvtData();
-            std::string gga_buffer;
-            libntrip::generateGGA(gnssPvtData, &gga_buffer);
+            if (packet.containsRawGnssPvtData())
+            {
+                XsRawGnssPvtData gnssPvtData = packet.rawGnssPvtData();
+                std::string gga_buffer;
+                libntrip::generateGGA(gnssPvtData, &gga_buffer);
 
-            nmea_msg.sentence = gga_buffer;
+                nmea_msg.sentence = gga_buffer;
 
-            pub.publish(nmea_msg);
+                pub.publish(nmea_msg);
+
+                return;  // If this block is executed, immediately return to avoid executing the next block
+            }
+            else if (packet.containsUtcTime() && packet.containsLatitudeLongitude() && packet.containsStatus())
+            {
+                XsRawGnssPvtData gnssData;
+
+                XsTimeInfo utcTime = packet.utcTime();
+                
+                // If the year is 1970, don't proceed with publishing.
+                if(utcTime.m_year == 1970)
+                    return;
+
+                uint32_t status = packet.status();
+
+                bool gnssFix = status & (1<<2);
+
+                uint8_t fixType;
+
+                if (gnssFix)
+                {
+                    fixType = 0x03; //3D-Fix
+                }
+                else 
+                {
+                    fixType = 0x00;
+                }
+
+                XsVector latLon = packet.latitudeLongitude();
+
+                int32_t longitude = static_cast<int32_t>(latLon[1] * 1e7);
+                int32_t latitude = static_cast<int32_t>(latLon[0] * 1e7);
+
+
+                gnssData.m_year = utcTime.m_year;
+                gnssData.m_month = utcTime.m_month;
+                gnssData.m_day = utcTime.m_day;
+                gnssData.m_hour = utcTime.m_hour;
+                gnssData.m_min = utcTime.m_minute;
+                gnssData.m_sec = utcTime.m_second;
+                gnssData.m_nano = utcTime.m_nano;
+                gnssData.m_valid = utcTime.m_valid;
+
+                gnssData.m_fixType = fixType;
+                gnssData.m_lon = longitude;
+                gnssData.m_lat = latitude;
+
+                std::string gga_buffer;
+                libntrip::generateGGA(gnssData, &gga_buffer);
+
+                nmea_msg.sentence = gga_buffer;
+
+                pub.publish(nmea_msg);
+            }
         }
     }
 };
 
 #endif
+
