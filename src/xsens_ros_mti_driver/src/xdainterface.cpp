@@ -49,6 +49,7 @@
 #include "messagepublishers/velocitypublisher.h"
 #include "messagepublishers/statuspublisher.h"
 #include "messagepublishers/nmeapublisher.h"
+#include "messagepublishers/gnssposepublisher.h"
 
 #define XS_DEFAULT_BAUDRATE (115200)
 
@@ -156,6 +157,11 @@ void XdaInterface::registerPublishers(ros::NodeHandle &node)
 	{
 		ROS_INFO("registerCallback NMEAPublisher....");
 		registerCallback(new NMEAPublisher(node));
+	}
+	if (ros::param::get("~pub_gnsspose", should_publish) && should_publish)
+	{
+		ROS_INFO("registerCallback GNSSPOSEPublisher....");
+		registerCallback(new GNSSPOSEPublisher(node));
 	}
 }
 
@@ -316,3 +322,4 @@ bool XdaInterface::handleError(std::string error)
 	ROS_ERROR("%s", error.c_str());
 	return false;
 }
+
