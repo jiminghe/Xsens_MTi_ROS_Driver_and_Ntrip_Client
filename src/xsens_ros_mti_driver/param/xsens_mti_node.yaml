@@ -33,6 +33,7 @@ pub_positionLLA: true
 pub_velocity: true
 pub_status: true
 pub_nmea: true
+pub_gnsspose: true
 
 
 
