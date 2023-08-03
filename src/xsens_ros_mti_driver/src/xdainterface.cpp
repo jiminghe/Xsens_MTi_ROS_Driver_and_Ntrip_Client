@@ -50,6 +50,7 @@
 #include "messagepublishers/statuspublisher.h"
 #include "messagepublishers/nmeapublisher.h"
 #include "messagepublishers/gnssposepublisher.h"
+#include "messagepublishers/utctimepublisher.h"
 
 #define XS_DEFAULT_BAUDRATE (115200)
 
@@ -162,6 +163,11 @@ void XdaInterface::registerPublishers(ros::NodeHandle &node)
 	{
 		ROS_INFO("registerCallback GNSSPOSEPublisher....");
 		registerCallback(new GNSSPOSEPublisher(node));
+	}
+	if (ros::param::get("~pub_utctime", should_publish) && should_publish)
+	{
+		ROS_INFO("registerCallback UTCTimePublisher....");
+		registerCallback(new UTCTimePublisher(node));
 	}
 }
 
@@ -322,4 +328,3 @@ bool XdaInterface::handleError(std::string error)
 	ROS_ERROR("%s", error.c_str());
 	return false;
 }
-
