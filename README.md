@@ -68,6 +68,10 @@ open two terminals:
 ```
 roslaunch xsens_mti_driver xsens_mti_node.launch
 ```
+or with the 3D display rviz:
+```
+roslaunch xsens_mti_driver display.launch
+```
 and then
 ```
 roslaunch ntrip ntrip.launch
