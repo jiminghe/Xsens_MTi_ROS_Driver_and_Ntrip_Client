@@ -59,9 +59,7 @@ RosXsDataPacket XdaCallback::next(const std::chrono::milliseconds &timeout)
 void XdaCallback::onLiveDataAvailable(XsDevice *, const XsDataPacket *packet)
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
-	ros::Time now = m_timeHandler.convertUtcTimeToRosTime(*packet);
 	
-
 	assert(packet != 0);
 
 	// Discard oldest packet if buffer full
@@ -70,6 +68,7 @@ void XdaCallback::onLiveDataAvailable(XsDevice *, const XsDataPacket *packet)
 		m_buffer.pop_front();
 	}
 
+	ros::Time now = m_timeHandler.convertUtcTimeToRosTime(*packet);
 	// Push new packet
 	m_buffer.push_back(RosXsDataPacket(now, *packet));
 
