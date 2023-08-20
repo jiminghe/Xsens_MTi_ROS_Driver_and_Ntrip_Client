@@ -51,6 +51,7 @@
 #include "messagepublishers/nmeapublisher.h"
 #include "messagepublishers/gnssposepublisher.h"
 #include "messagepublishers/utctimepublisher.h"
+#include "xsens_log_handler.h"
 
 #define XS_DEFAULT_BAUDRATE (115200)
 
@@ -265,17 +266,22 @@ bool XdaInterface::prepare()
 	if (!m_device->gotoMeasurement())
 		return handleError("Could not put device into measurement mode");
 
-	std::string log_file;
-	if (ros::param::get("~log_file", log_file))
-	{
-		if (m_device->createLogFile(log_file) != XRV_OK)
-			return handleError(std::string("Failed to create a log file! (%s)") + log_file);
-		else
-			ROS_INFO("Created a log file: %s", log_file.c_str());
+	bool should_log = false;
+    	if (ros::param::get("~should_log", should_log) && should_log)
+    	{
+        	XsensLogHandler logHandler;
+        	logHandler.prepareLogDirectory();
+        	std::string log_file = logHandler.getLogFileName();
 
-		if (!m_device->startRecording())
-			return handleError("Could not start recording");
-	}
+        	if (m_device->createLogFile(log_file) != XRV_OK)
+            		return handleError(std::string("Failed to create a log file! (%s)") + log_file);
+        	else
+            		ROS_INFO("Created a log file: %s", log_file.c_str());
+
+        	if (!m_device->startRecording())
+            		return handleError("Could not start recording");
+    	}
+
 
 	return true;
 }
