@@ -11,6 +11,11 @@
 
 publisher_queue_size: 5
 
+
+##timestamp option: 1)mti_utc: UTCTime from MTI; 2) mti_sampletime: UTCTime based on the SampleTimeFine from MTI; 3) other: UTCTime from host device
+## make sure you have selected "UTC Time" or "Sample Time Fine" at MT Manager - Device Settings - Output Configurations.
+time_option: "mti_utc"
+
 # TF transform frame_id (default: imu_link), you may want to change it if you use multiple devices
 #frame_id: "imu_link"
 
