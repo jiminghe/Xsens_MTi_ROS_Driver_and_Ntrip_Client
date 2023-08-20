@@ -27,8 +27,11 @@
 #include <xstypes/xsdatapacket.h>
 
 XdaCallback::XdaCallback(size_t maxBufferSize)
-	: m_maxBufferSize(maxBufferSize)
 {
+	m_maxBufferSize = maxBufferSize;
+	std::string time_option;
+	ros::param::get("~time_option", time_option);
+	m_timeHandler.setTimeOption(time_option);
 }
 
 XdaCallback::~XdaCallback() throw()
@@ -56,7 +59,8 @@ RosXsDataPacket XdaCallback::next(const std::chrono::milliseconds &timeout)
 void XdaCallback::onLiveDataAvailable(XsDevice *, const XsDataPacket *packet)
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
-	ros::Time now = ros::Time::now();
+	ros::Time now = m_timeHandler.convertUtcTimeToRosTime(*packet);
+	
 
 	assert(packet != 0);
 
