@@ -63,7 +63,8 @@ add_executable(
 	src/xdainterface.cpp
 	src/xdacallback.cpp
 	src/xsens_log_handler.cpp
-  src/ntrip_util.cpp
+        src/ntrip_util.cpp
+        src/xsens_time_handler.cpp
 )
 target_link_libraries(
 	xsens_mti_node
