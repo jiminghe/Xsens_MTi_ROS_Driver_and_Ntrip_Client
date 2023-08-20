@@ -30,7 +30,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
-#include <xscommon/ntrip_util.h>
+#include "ntrip_util.h"
 
 struct NMEAPublisher : public PacketCallback
 {
