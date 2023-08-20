@@ -29,6 +29,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <list>
+#include "xsens_time_handler.h"
 
 struct XsDataPacket;
 struct XsDevice;
@@ -51,6 +52,8 @@ private:
 	std::condition_variable m_condition;
 	std::list<RosXsDataPacket> m_buffer;
 	size_t m_maxBufferSize;
+	XsensTimeHandler m_timeHandler;
 };
 
 #endif
+
