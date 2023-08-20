@@ -6,8 +6,8 @@
 ##port: '/dev/ttyUSB0'
 ##baudrate: 460800 # non necessary for some devices
 
-## Log file (optional), placed in ~/.ros/ otherwise use absolute path
-#log_file: log.mtb
+## Log file (optional), placed in /home/[user_name]/Documents/xsens_log
+#should_log: true
 
 publisher_queue_size: 5
 
