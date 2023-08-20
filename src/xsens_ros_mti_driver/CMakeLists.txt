@@ -52,6 +52,7 @@ catkin_package(
 include_directories(
 # include
   lib/xspublic
+  src #to include headers in the src directory
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -61,6 +62,8 @@ add_executable(
 	src/main.cpp
 	src/xdainterface.cpp
 	src/xdacallback.cpp
+	src/xsens_log_handler.cpp
+  src/ntrip_util.cpp
 )
 target_link_libraries(
 	xsens_mti_node
