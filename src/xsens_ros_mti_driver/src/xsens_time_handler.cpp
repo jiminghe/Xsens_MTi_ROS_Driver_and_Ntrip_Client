@@ -64,7 +64,7 @@ ros::Time XsensTimeHandler::convertUtcTimeToRosTime(const XsDataPacket &packet)
     }
     else
     {
-        ROS_INFO("time_option is host controller time");
+        //ROS_INFO("time_option is host controller time");
         return ros::Time::now(); // returns ros time
     }
 }
