@@ -48,10 +48,11 @@ ros::Time XsensTimeHandler::convertUtcTimeToRosTime(const XsDataPacket &packet)
                     //ROS_INFO("time_option is mti_sampletime, Wraparound Detected. Current: %u, Previous: %u", currentSampleTimeFine, prevSampleTimeFine);
                     timeDiff += m_RollOver;
                 }
-                else
-                {
-                    ROS_WARN("Minor timestamp decrement detected but not considered as wraparound. Current: %u, Previous: %u", currentSampleTimeFine, prevSampleTimeFine);
-                }
+                // else
+                // {
+                //     //// No adjustment on the cases when the packet comes later with a smaller sampleTimeFine.
+                //     ROS_WARN("Minor timestamp decrement detected but not considered as wraparound. Current: %u, Previous: %u", currentSampleTimeFine, prevSampleTimeFine);
+                // }
             }
 
             ros::Duration deltaTime(timeDiff * 0.0001); // Convert to seconds using the multiplier 0.0001
