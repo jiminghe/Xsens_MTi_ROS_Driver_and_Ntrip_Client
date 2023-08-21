@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -97,6 +65,7 @@ StandardThread::StandardThread()
 	, m_threadId(0)
 #else
 	, m_running(false)
+	, m_finished(false)
 #endif
 	, m_name(NULL)
 {
@@ -135,7 +104,7 @@ void StandardThread::terminateThread()
 }
 #endif
 
-/*! \returns True if the thread is alive
+/*! \returns True if the thread is alive, false if the thread is already dead or is joinable.
 */
 bool StandardThread::isAlive(void) volatile const noexcept
 {
@@ -151,11 +120,11 @@ bool StandardThread::isAlive(void) volatile const noexcept
 	}
 	return false;
 #else
-	return (pthread_kill(m_thread, 0) == 0);
+	return !m_finished;
 #endif
 }
 
-/*! \brief Returns whether the thread is currently running.
+/*! \brief Returns whether the thread is currently running the thread main function.
 */
 bool StandardThread::isRunning(void) volatile const noexcept
 {
@@ -283,12 +252,16 @@ bool StandardThread::startThread(const char* name)
 	if (isAlive())
 		return false;
 
+	// Join the old thread if it hasn't happened yet
+	stopThread();
+
 	if (m_name)
+	{
 		free(m_name);
+		m_name = NULL;
+	}
 	if (name)
 		m_name = _strdup(name);
-	else
-		m_name = NULL;
 
 #ifdef _WIN32
 	m_stop = false;
@@ -302,11 +275,13 @@ bool StandardThread::startThread(const char* name)
 	}
 #else
 	m_stop = false;
+	m_finished = false;
 	m_running = true;
 	if (pthread_create(&m_thread, &m_attr, threadInit, this))
 	{
 		/* something went wrong */
 		m_thread = XSENS_INVALID_THREAD;
+		m_finished = true;
 		return false;
 	}
 #endif
@@ -333,6 +308,9 @@ void StandardThread::signalStopThread(void)
 */
 void StandardThread::stopThread(void) noexcept
 {
+	if (m_thread == XSENS_INVALID_THREAD)
+		return;
+
 #ifdef _WIN32
 	// prevent multiple threads from doing this at the same time on windows, pthreads deals with this in its own special way
 	xsens::Lock locky(&m_mux, false);
@@ -341,9 +319,6 @@ void StandardThread::stopThread(void) noexcept
 	else
 		locky.lock();
 #endif
-
-	if (!isAlive())
-		return;
 
 	signalStopThread();
 #ifdef _WIN32
@@ -361,7 +336,7 @@ void StandardThread::stopThread(void) noexcept
 	while (isAlive())
 		xsYield();
 	//#endif
-	if (m_thread != XSENS_INVALID_THREAD && ::CloseHandle(m_thread) == 0)
+	if (::CloseHandle(m_thread) == 0)
 	{
 		DWORD lastErr = GetLastError();
 		(void)lastErr;
@@ -383,43 +358,11 @@ void StandardThread::stopThread(void) noexcept
 	//			return;
 	//	}
 	//#else
-	//BHE Change:
-	// while (isAlive())
-		// xsYield();
-
-	int rv = 0;
-	while (true){
-		rv = pthread_tryjoin_np(m_thread, NULL);
-		if (rv == 0)
-		{
-			break;
-		}
-		if (errno ==EBUSY)
-		{
-			xsYield();
-		}
-		else{
-			// Some other error -- maybe the thread is invalid?
-			break;
-		}
-	}
+	while (isAlive())
+		xsYield();
 	//#endif
-	// if (pthread_join(m_thread, NULL))
-	if(rv!=0) //BHE change end
-	{
-		switch (errno)
-		{
-			case EINVAL:
-			/* no joinable thread found */
-			case ESRCH:
-			/* no thread fits thread id */
-			case EDEADLK:
-			/* deadlock or trying to join self */
-			default:
-				break;
-		}
-	}
 
+	pthread_join(m_thread, NULL);
 	m_running = false;
 #endif
 	m_thread = XSENS_INVALID_THREAD;
@@ -432,16 +375,11 @@ XSENS_THREAD_RETURN StandardThread::threadInit(void* obj)
 		xsNameThisThread(thread->m_name);
 
 	thread->threadMain();
+#ifndef _WIN32
+	thread->m_finished = true;
+#endif
 	return 0;
 }
-
-#ifndef _WIN32
-/*! \brief Cleanup the thread by calling the exit function */
-void StandardThread::threadCleanup(void* obj)
-{
-	((StandardThread*)obj)->exitFunction();
-}
-#endif
 
 /*! \brief The inner loop of the thread, calls innerFunction repeatedly and sleeps when necessary
 */
@@ -487,6 +425,7 @@ WatchDogThread::WatchDogThread(WatchDogFunction func, void* param)
 	, m_running(false)
 	, m_reset(false)
 	, m_stop(false)
+	, m_finished(false)
 #endif
 	, m_timeout(10000)
 	, m_func(func)
@@ -520,17 +459,18 @@ WatchDogThread::~WatchDogThread()
 
 bool WatchDogThread::isAlive(void) volatile const noexcept
 {
+	if (m_thread == XSENS_INVALID_THREAD)
+		return false;
+
 #ifdef _WIN32
 	DWORD exitCode;
 	if (::GetExitCodeThread(m_thread, &exitCode))
 		return (exitCode == STILL_ACTIVE);
-#else
-	if (m_thread == XSENS_INVALID_THREAD)
-		return false;
 
-	return (pthread_kill(m_thread, 0) == 0);
-#endif
 	return false;
+#else
+	return !m_finished;
+#endif
 }
 
 bool WatchDogThread::isRunning(void) volatile const noexcept
@@ -597,9 +537,14 @@ bool WatchDogThread::startTimer(uint32_t timeout, const char* name)
 	m_running = true;
 	m_reset = false;
 	m_stop = false;
-
+	m_finished = false;
 	if (pthread_create(&m_thread, &m_attr, threadInit, this) != 0)
+	{
+		/* something went wrong */
+		m_thread = XSENS_INVALID_THREAD;
+		m_finished = true;
 		return false;
+	}
 #endif
 	return true;
 }
@@ -609,7 +554,7 @@ bool WatchDogThread::startTimer(uint32_t timeout, const char* name)
 */
 bool WatchDogThread::stopTimer(void) noexcept
 {
-	if (!isAlive())
+	if (m_thread == XSENS_INVALID_THREAD)
 		return true;
 
 #ifdef _WIN32
@@ -671,7 +616,6 @@ bool WatchDogThread::stopTimer(void) noexcept
 		}
 	}
 	m_running = false;
-	m_thread = XSENS_INVALID_THREAD;
 #endif
 	m_thread = XSENS_INVALID_THREAD;
 	return true;
@@ -684,6 +628,9 @@ XSENS_THREAD_RETURN WatchDogThread::threadInit(void* obj)
 		xsNameThisThread(thread->m_name);
 
 	thread->threadMain();
+#ifndef _WIN32
+	thread->m_finished = true;
+#endif
 	return 0;
 }
 

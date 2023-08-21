@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -121,6 +89,7 @@ enum XsResultValue
 	XRV_FILEERROR				= 52,	//!< 52: Failure reading, writing, opening or closing a file
 	XRV_OUTPUTCONFIGERROR		= 53,	//!< 53: Erroneous output configuration, device can not go to measurement
 	XRV_FILE_SYSTEM_CORRUPT		= 54,	//!< 54: The internal file system of the device has become corrupt
+	XRV_BATTERY_SYSTEM_ERROR	= 55,	//!< 55: The device's battery system reports an unrecoverable error
 
 	// CMT / XDA / XME / etc
 	XRV_ERROR					= 256,	//!< 256: A generic error occurred
@@ -200,6 +169,8 @@ enum XsResultValue
 	XRV_PERFORMANCE_WARNING		= 322,	//!< 322: The system running the application can't fully keep up with the incoming data. This may lead to degraded performance or lag.
 	XRV_PERFORMANCE_OK			= 323,	//!< 323: The system running the application has recovered from a previously reported XRV_PERFORMANCE_WARNING.
 
+	XRV_DEVICEID_COLLISION = 330,	//!< 330: There are child devices connected that cause a collision because part of their device Id's are the same
+
 	// notifications
 	XRV_SHUTTINGDOWN		= 400,	//!< 400: The device is shutting down
 	XRV_GNSSCONFIGURATIONERROR	= 401,	//!< 401: A configuration item was refused by the GNSS module
@@ -208,7 +179,22 @@ enum XsResultValue
 	XRV_DEVICE_NOT_CALIBRATED	= 404,	//!< 404: The EMTS of the device does not contain calibration data
 	XRV_GNSSCONNECTIONLOST 		= 405,	//!< 405: Connection lost with the GNSS module
 	XRV_GNSSLOWINPUTRATE		= 406,	//!< 406: GNSS input rate is too low
-	XRV_GNSSINCOMPLETEDATASET	= 407	//!< 407: Incomplete dataset for the GNSS module
+	XRV_GNSSINCOMPLETEDATASET	= 407,	//!< 407: Incomplete dataset for the GNSS module
+
+	// XDDA / Bluetooth
+	XRV_BLUETOOTH_SCANNING_ERROR = 500, //!< 500: Error during Bluetooth scanning
+	XRV_FLASH_PROCESS_BUSY = 501, //!< 501: Flash is occupied by other process
+	XRV_FLASH_FULL = 502, //!< 502: Recording flash space is full
+	XRV_INVALID_FLASHFORMAT = 503, //!< 503: Recording flash format is invalid. Current firmware version doesn't support the flash format. Use EraseFlash to reset the flash format.
+	XRV_SYNC_TOO_FEW_DEVICES = 504, //!< 504: Not enough devices found to start sync. Need at least 2
+	XRV_SYNC_COULD_NOT_START = 505, //!< 505: At least one device already in sync mode
+	XRV_SYNC_SETTINGS_MISMATCH = 506, //!< 506: Configuration mismatch between intended sync devices
+	XRV_SYNC_NO_START_ROOT = 507, //!< 507: Could not start sync of root node device
+	XRV_SYNC_NO_START_SCANNER = 508, //!< 508: Could not start sync of scanner device
+	XRV_SYNC_NO_RECONNECT = 509, //!< 509: Could not reconnect a device for sync
+	XRV_SYNC_FAILED = 510, //!< 510: Not all devices are in sync status
+	XRV_SYNC_ROOT_NOT_FOUND = 511, //!< 511: Requested root node device was not found in connected devices
+
 };
 /*! @} */
 typedef enum XsResultValue XsResultValue;

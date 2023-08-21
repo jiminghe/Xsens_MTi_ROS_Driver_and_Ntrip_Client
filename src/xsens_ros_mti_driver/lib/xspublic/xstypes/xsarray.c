@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -109,6 +77,15 @@ void XsArray_construct(void* thisPtr, XsArrayDescriptor const* const descriptor,
 	{
 		// init to size
 		*((void**) &thisArray->m_data) = malloc(thisArray->m_size * elemSize(thisArray));
+		if (!thisArray->m_data)
+		{
+			// out of memory
+			*((XsSize*) &thisArray->m_size) = 0;
+			*((XsSize*) &thisArray->m_reserved) = 0;
+			*((XsSize*) &thisArray->m_flags) = XSDF_Managed | XSDF_Empty | XSDF_BadAlloc;
+			return;
+		}
+
 		XsArray_incAllocCount();
 
 		// init the configurations
@@ -284,9 +261,13 @@ void XsArray_reserve(void* thisPtr, XsSize count)
 
 	// init to size
 	*((void**) &tmp.m_data) = malloc(tmp.m_reserved * elemSize(thisArray));
-	assert(tmp.m_data);
 	if (!tmp.m_data)
+	{
+		// bad alloc clears the array
+		XsArray_destruct(thisArray);
+		*((XsSize*) &thisArray->m_flags) = XSDF_Managed | XSDF_Empty | XSDF_BadAlloc;
 		return;
+	}
 	XsArray_incAllocCount();
 
 	if (thisArray->m_descriptor->itemConstruct)
@@ -349,7 +330,11 @@ void XsArray_append(void* thisPtr, void const* other)
 	}
 
 	if (thisArray->m_size + otherArray->m_size > thisArray->m_reserved)
+	{
 		XsArray_reserve(thisArray, thisArray->m_size + otherArray->m_size);	// maybe reserve more here?
+		if (thisArray->m_flags & XSDF_BadAlloc)
+			return;
+	}
 
 	if (thisArray->m_descriptor->rawCopy)
 		thisArray->m_descriptor->rawCopy(elemAt(thisArray->m_data, thisArray->m_size), otherArray->m_data, otherArray->m_size, thisArray->m_descriptor->itemSize);
@@ -375,7 +360,11 @@ void XsArray_insert(void* thisPtr, XsSize index, XsSize count, void const* src)
 	XsArray* thisArray = (XsArray*) thisPtr;
 	XsSize i, d = count;
 	if (thisArray->m_size + count > thisArray->m_reserved)
+	{
 		XsArray_reserve(thisArray, ((thisArray->m_size + count) * 3) / 2);		// we reserve 50% more space here to handle multiple sequential insertions efficiently
+		if (thisArray->m_flags & XSDF_BadAlloc)
+			return;
+	}
 
 	// fix index if beyond end of list
 	if (index > thisArray->m_size)

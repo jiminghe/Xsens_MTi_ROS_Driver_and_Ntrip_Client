@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -336,7 +304,7 @@ int XsDeviceId_hasInternalGnss(struct XsDeviceId const* thisPtr)
 */
 int XsDeviceId_isMtw(const struct XsDeviceId* thisPtr)
 {
-	return XsDeviceId_isMtw2(thisPtr);
+	return XsDeviceId_isMtw2(thisPtr) || XsDeviceId_isMtw2Obskur(thisPtr);
 }
 
 /*! \brief Test if this device ID represents an MTw2.
@@ -348,6 +316,14 @@ int XsDeviceId_isMtw2(const struct XsDeviceId* thisPtr)
 		return XS_DID_MTW2(thisPtr->m_deviceId);
 	else
 		return (memcmp(thisPtr->m_productCode, "MTw2", 4) == 0);
+}
+
+/*! \brief Test if this device ID represents an MTw2Obskur device.
+	\returns true if this XsDeviceId represents an MTw2 for Obskur
+*/
+int XsDeviceId_isMtw2Obskur(const struct XsDeviceId* thisPtr)
+{
+	return XS_DID_MTW2OBSKUR(thisPtr->m_deviceId);
 }
 
 /*! \brief Test if this device ID represents an MTx
@@ -944,6 +920,8 @@ void XsDeviceId_typeName(XsDeviceId const* thisPtr, XsString* str)
 		XsString_assignCharArray(str, "MTi-G-900");
 	else if (XsDeviceId_isGlove(thisPtr))
 		XsString_assignCharArray(str, "Glove");
+	else if (XsDeviceId_isMtw2Obskur(thisPtr))
+		XsString_assignCharArray(str, "MTw2 Obskur");
 	else
 		XsString_assignCharArray(str, "Unknown");
 }
@@ -1026,17 +1004,17 @@ void XsDeviceId_deviceTypeMask(struct XsDeviceId const* thisPtr, int detailed, s
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
 	{
 		if (XsDeviceId_isMti3X0(thisPtr))
-			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK) : 0));
+			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? XS_DID_GP_MASK : 0));
 		else if (XsDeviceId_isMtMk4_X(thisPtr))
-			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK | XS_DID_TYPEL_MASK) : 0));
+			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GP_MASK | XS_DID_TYPEL_MASK) : 0));
 		else if (XsDeviceId_isMtMk4(thisPtr))
-			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK | XS_DID_TYPEL_MK5) : 0));
+			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GP_MASK | XS_DID_TYPEL_MK5) : 0));
 		else if (XsDeviceId_isAwindaX(thisPtr))
-			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK) : 0));
+			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? XS_DID_GP_MASK : 0));
 		else if (XsDeviceId_isSyncStationX(thisPtr))
-			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK) : 0));
+			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? XS_DID_GP_MASK : 0));
 		else if (XsDeviceId_isMtw(thisPtr) || XsDeviceId_isMtx(thisPtr))
-			type->m_deviceId = (XS_DID_TYPE_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK) : 0));
+			type->m_deviceId = (XS_DID_TYPE_MASK | (detailed ? XS_DID_GP_MASK : 0));
 		else if (thisPtr->m_deviceId == XS_DID_ABMCLOCKMASTER)
 			type->m_deviceId = XS_DID_ABMCLOCKMASTER;
 		else
@@ -1045,6 +1023,14 @@ void XsDeviceId_deviceTypeMask(struct XsDeviceId const* thisPtr, int detailed, s
 	else
 		type->m_deviceId = XS_DID64_BIT;
 }
+
+/*! \brief Returns the base part (lower 4 bytes) of the device Id
+*/
+uint16_t XsDeviceId_basePart(struct XsDeviceId const* thisPtr)
+{
+	return (uint16_t)(thisPtr->m_deviceId & XS_DID_BASE_ID_MASK);
+}
+
 
 //============================================================================================================
 //============================================================================================================
@@ -1335,5 +1321,6 @@ int XsDeviceId_isMtMk5_710(const struct XsDeviceId* thisPtr)
 {
 	return XsDeviceId_isMtMk5(thisPtr) && XsDeviceId_isMtMk4_710(thisPtr);
 }
+
 
 /*! @} */

@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -109,7 +77,8 @@ enum XsDataFlags
 	XSDF_None		= 0,	//!< No flag set
 	XSDF_Managed	= 1,	//!< The contained data should be managed (freed) by the object, when false, the object assumes the memory is freed by some other process after its destruction
 	XSDF_FixedSize	= 2,	//!< The contained data points to a fixed-size buffer, this allows creation of dynamic objects on the stack without malloc/free overhead.
-	XSDF_Empty		= 4		//!< The object contains undefined data / should be considered empty. Usually only relevant when XSDF_FixedSize is also set, as otherwise the data pointer will be NULL and empty-ness is implicit.
+	XSDF_Empty		= 4,	//!< The object contains undefined data / should be considered empty. Usually only relevant when XSDF_FixedSize is also set, as otherwise the data pointer will be NULL and empty-ness is implicit.
+	XSDF_BadAlloc	= 8,	//!< The last memory allocation in the object failed, the contents are now erased
 };
 /*! @} */
 typedef enum XsDataFlags XsDataFlags;
@@ -122,6 +91,13 @@ XSTYPES_DLL_API const char* XsDataFlags_toString(XsDataFlags f);
 
 #ifdef __cplusplus
 } // extern "C"
+
+/*! \brief boolean xor function, since C++ does not provide this and operator ^ is not guaranteed to work */
+inline bool xorBool(bool a, bool b)
+{
+	return (a && !b) || (b && !a);
+}
+
 /*! \brief \copybrief XsDataFlags_toString \sa XsDataFlags_toString */
 inline const char* toString(XsDataFlags s)
 {
@@ -205,7 +181,7 @@ inline const char* toString(XsDataFlags s)
 #ifdef __GNUC__
 	#define XS_PACKED_STRUCT __attribute__((__packed__))
 #else
-	#define XS_PACKED_STRUCT
+	#define XS_PACKED_STRUCT	/* */
 #endif
 
 #if defined (__ICCARM__)

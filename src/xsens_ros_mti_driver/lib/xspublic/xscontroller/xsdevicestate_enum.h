@@ -30,28 +30,30 @@
 //  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
 //  
 
-#ifndef XSTYPESINFO_H
-#define XSTYPESINFO_H
+#ifndef XSDEVICESTATE_ENUM_H
+#define XSDEVICESTATE_ENUM_H
 
-#include "xstypesconfig.h"
+/*!	\addtogroup enums Global enumerations
+	@{
+*/
 
-struct XsVersion;
-
-#ifdef __cplusplus
-	#include "xsversion.h"
-	extern "C"
-#endif
-XSTYPES_DLL_API void xsTypesVersion(struct XsVersion* version);
-#define XsTypesInfoGetVersion(a)	xsTypesVersion(a)
-
-#ifdef __cplusplus
-/*! \brief Return the version information of the XsTypes library */
-inline static XsVersion xsTypesVersion()
+//AUTO namespace xscontroller {
+/*! \brief XsDevice state identifiers */
+enum XsDeviceState
 {
-	XsVersion v;
-	xsTypesVersion(&v);
-	return v;
-}
-#endif
+	XDS_Initial,					/*!< Initial unknown state */
+	XDS_Config = 1,					/*!< Configuration mode. */
+	XDS_Idle = 1,					/*!< Idle state. */ /*lint !e849*/
+	XDS_Measurement,				/*!< Measurement mode, devices are transmitting data. */
+	XDS_WaitingForRecordingStart,	/*!< The device is in measurement mode and waiting for an external trigger to go to recording state. \note Awinda Station only */
+	XDS_Recording,					/*!< Same as measurement mode, but on Awinda systems retransmissions now also occur. \note Only on an Awinda Station is this an actual state in the device. For other devices, the state exists only in XDA. */
+	XDS_FlushingData,				/*!< The device has been notified that it should stop recording. It is still measuring data and may flush retransmitted data to XDA. When XDA decides that it will not receive any more data that should be recorded, the state will be switched to XDS_Measurement automatically */
+	XDS_Destructing,				/*!< The device is being destructed. After this callback, the device and any references to it are invalid. */
+	XDS_Exporting,					/*!< Device is in a recording export state. */
+	XDS_Synchronizing				/*!< Synchronizing state, device is synchronizing with other device(s). */
+};
+/*! @} */
+typedef enum XsDeviceState XsDeviceState;
+//AUTO }
 
 #endif

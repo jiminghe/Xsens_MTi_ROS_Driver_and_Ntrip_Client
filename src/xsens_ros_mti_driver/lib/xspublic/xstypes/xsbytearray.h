@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -92,7 +60,11 @@ XSTYPES_DLL_API void XsByteArray_construct(XsByteArray* thisPtr, XsSize count, u
 #define XsByteArray_fromString(str, copy)			XsArray_assign(copy, str->m_size?str->m_size:1, str->m_size?str->m_data:"\0")
 #define XsByteArray_swap(a, b)						XsArray_swap(a, b)
 #define XsByteArray_erase(thisPtr, index, count)	XsArray_erase(thisPtr, index, count)
+#else
+struct XsByteArray;
 #endif
+
+XSTYPES_DLL_API void XsByteArray_mid(XsByteArray* thisPtr, XsByteArray const* source, XsSize start, XsSize count);
 
 #ifdef __cplusplus
 } // extern "C"
@@ -140,6 +112,9 @@ struct XsByteArray : public XsArrayImpl<uint8_t, g_xsByteArrayDescriptor, XsByte
 		assign(src.size() + 1, reinterpret_cast<uint8_t const*>(src.c_str()));
 	}
 
+	//! \brief Silence warning: Definition of implicit copy assignment operator is deprecated because it has a user-provided copy constructor
+	inline XsByteArray& operator=(const XsByteArray& other) = default;
+
 	//! \brief Return a pointer to the internal data buffer
 	inline uint8_t* data()
 	{
@@ -156,6 +131,19 @@ struct XsByteArray : public XsArrayImpl<uint8_t, g_xsByteArrayDescriptor, XsByte
 	inline XsString toXsString() const
 	{
 		return XsString(size(), reinterpret_cast<const char*>(data()));
+	}
+
+	/*! \brief Return a sub array of the array
+		\details The function returns a copy of up to \a count characters from the array, starting at offset \a start
+		\param start The offset of the first byte to copy
+		\param count The maximum number of bytes to copy
+		\return The requested subarray
+	*/
+	inline XsByteArray mid(XsSize start, XsSize count) const
+	{
+		XsByteArray rv;
+		XsByteArray_mid(&rv, this, start, count);
+		return rv;
 	}
 
 	/*! \brief Return the data at position \a offset converted into a T

@@ -2,9 +2,9 @@
 ##  - device_id (most secure if you use multiple devices)
 ##  - port + baudrate information
 ##  - nothing: the driver scans for devices and selects the first found.
-##device_id: '00800210C2' # uppercase hex string
-##port: '/dev/ttyUSB0'
-##baudrate: 460800 # non necessary for some devices
+# device_id: '077007EF' # uppercase hex string
+# port: '/dev/ttyUSB0'
+# baudrate: 921600 # non necessary for some devices
 
 ## Log file (optional), placed in /home/[user_name]/Documents/xsens_log
 #should_log: true

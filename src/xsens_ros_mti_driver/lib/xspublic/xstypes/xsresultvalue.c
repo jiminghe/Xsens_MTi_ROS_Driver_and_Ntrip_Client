@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -155,6 +123,8 @@ const char* XsResultValue_toString(XsResultValue result)
 			return "Erroneous output configuration, device can not go to measurement";
 		case XRV_FILE_SYSTEM_CORRUPT:
 			return "The internal file system of the device has become corrupt";
+		case XRV_BATTERY_SYSTEM_ERROR:
+			return "The battery system has an unrecoverable error";
 
 		// XDA / XME / etc
 		case XRV_ERROR:
@@ -297,6 +267,9 @@ const char* XsResultValue_toString(XsResultValue result)
 		case XRV_PERFORMANCE_OK:
 			return "The system running the application can keep up with the incoming data again";
 
+		case XRV_DEVICEID_COLLISION:
+			return "There are child devices connected that cause a collision because part of their device Id's are the same";
+
 		case XRV_SHUTTINGDOWN:
 			return "The device is shutting down";
 		case XRV_GNSSCONFIGURATIONERROR:
@@ -313,6 +286,31 @@ const char* XsResultValue_toString(XsResultValue result)
 			return "GNSS input rate is too low";
 		case XRV_GNSSINCOMPLETEDATASET:
 			return "Incomplete dataset for the GNSS module";
+
+		case XRV_BLUETOOTH_SCANNING_ERROR:
+			return "An error occurred during Bluetooth scanning";
+		case XRV_FLASH_PROCESS_BUSY:
+			return "Flash is occupied by other process. Wait a while and send the control message again";
+		case XRV_FLASH_FULL:
+			return "Recording flash space is full";
+		case XRV_INVALID_FLASHFORMAT:
+			return "Recording flash format is invalid";
+		case XRV_SYNC_TOO_FEW_DEVICES:
+			return "Not enough devices found to start sync. Need at least 2";
+		case XRV_SYNC_COULD_NOT_START:
+			return "At least one device already in sync mode";
+		case XRV_SYNC_SETTINGS_MISMATCH:
+			return "Configuration mismatch between intended sync devices";
+		case XRV_SYNC_NO_START_ROOT:
+			return "Could not start sync of root node device";
+		case XRV_SYNC_NO_START_SCANNER:
+			return "Could not start sync of scanner device";
+		case XRV_SYNC_NO_RECONNECT:
+			return "Could not reconnect a device for sync";
+		case XRV_SYNC_FAILED:
+			return "Not all devices are in sync status";
+		case XRV_SYNC_ROOT_NOT_FOUND:
+			return "Requested root node device was not found in connected devices";
 		default:
 			return "!!Undefined Result Value!!";
 	}

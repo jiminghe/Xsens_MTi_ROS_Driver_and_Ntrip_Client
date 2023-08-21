@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -303,7 +271,7 @@ int XsQuaternion_equal(XsQuaternion const* a, XsQuaternion const* b)
 	return (a->m_w == b->m_w &&
 			a->m_x == b->m_x &&
 			a->m_y == b->m_y &&
-			a->m_z == b->m_z);
+			a->m_z == b->m_z) ? 1 : 0;
 }
 
 /*! \brief Checks whether \a a and \a b are equal with tolerance \a tolerance
@@ -318,23 +286,23 @@ static int fuzzyIsEqual(double a, double b, double tolerance)
 }
 
 /*! \relates XsQuaternion
-	\brief Returns non-zero if the values at \a thisPtr and \a other are within \a tolerance of each other
+	\brief Returns zero if the values at \a thisPtr and \a other are within \a tolerance of each other
 */
 int XsQuaternion_compare(XsQuaternion const* thisPtr, XsQuaternion const* other, XsReal tolerance)
 {
 	if (thisPtr == other)
-		return 1;
+		return 0;
 
 	if (fuzzyIsEqual(thisPtr->m_data[0], other->m_data[0], tolerance) &&
 		fuzzyIsEqual(thisPtr->m_data[1], other->m_data[1], tolerance) &&
 		fuzzyIsEqual(thisPtr->m_data[2], other->m_data[2], tolerance) &&
 		fuzzyIsEqual(thisPtr->m_data[3], other->m_data[3], tolerance))
-		return 1;
+		return 0;
 	// add extra check for q == -q (negative-definite vs positive-definite comparison)
 	return (fuzzyIsEqual(thisPtr->m_data[0], -other->m_data[0], tolerance) &&
 			fuzzyIsEqual(thisPtr->m_data[1], -other->m_data[1], tolerance) &&
 			fuzzyIsEqual(thisPtr->m_data[2], -other->m_data[2], tolerance) &&
-			fuzzyIsEqual(thisPtr->m_data[3], -other->m_data[3], tolerance));
+			fuzzyIsEqual(thisPtr->m_data[3], -other->m_data[3], tolerance)) ? 0 : 1;
 }
 
 /*! \relates XsQuaternion
@@ -343,9 +311,9 @@ int XsQuaternion_compare(XsQuaternion const* thisPtr, XsQuaternion const* other,
 XsReal XsQuaternion_dotProduct(XsQuaternion const* thisPtr, XsQuaternion const* other)
 {
 	return	(thisPtr->m_w * other->m_w) +
-		(thisPtr->m_x * other->m_x) +
-		(thisPtr->m_y * other->m_y) +
-		(thisPtr->m_z * other->m_z);
+			(thisPtr->m_x * other->m_x) +
+			(thisPtr->m_y * other->m_y) +
+			(thisPtr->m_z * other->m_z);
 }
 
 /*! @} */

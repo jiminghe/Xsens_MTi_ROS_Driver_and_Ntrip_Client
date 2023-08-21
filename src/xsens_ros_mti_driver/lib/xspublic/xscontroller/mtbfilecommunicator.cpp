@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -208,7 +176,7 @@ void MtbFileCommunicator::closeLogFile()
 	function will continue until the message has been found or the end of the file has been reached.
 	\returns The messsage that was read
 */
-XsMessage MtbFileCommunicator::readMessageFromStartOfFile(uint8_t msgId, int maxMsgs)
+XsMessage MtbFileCommunicator::readMessageFromStartOfFile(XsXbusMessageId msgId, int maxMsgs)
 {
 	if (!m_ioInterfaceFile)
 	{
@@ -261,7 +229,7 @@ XsMessage MtbFileCommunicator::readMessageFromStartOfFile(uint8_t msgId, int max
 	function will continue until the end of the file has been reached.
 	\returns The messsage that was read
 */
-std::deque<XsMessage> MtbFileCommunicator::readMessagesFromStartOfFile(uint8_t msgId, int maxMsgs)
+std::deque<XsMessage> MtbFileCommunicator::readMessagesFromStartOfFile(XsXbusMessageId msgId, int maxMsgs)
 {
 	std::deque<XsMessage> rv;
 
@@ -485,7 +453,7 @@ XsResultValue MtbFileCommunicator::readLogFile(XsDevice* device)
 XsResultValue MtbFileCommunicator::readSinglePacketFromFile()
 {
 	JLTRACEG("Reading from file");
-	XsMessage msg = readMessage(0);
+	XsMessage msg = readMessage(XMID_InvalidMessage);
 	if (lastResult())
 		return lastResult();
 
@@ -653,13 +621,13 @@ bool MtbFileCommunicator::isReadingFromFile() const
 
 /*! \brief Read a message from the open file
 	\details This function will attempt to read a full message from the open device (file or COM port
-	or USB port). If msgId is non-0, the function will look for a specific message ID.
+	or USB port). If msgId is non-XMID_InvalidMessage, the function will look for a specific message ID.
 	The function will read from the device, but it won't wait for data to become available.
-	\param msgId Either 0 to read the first available message or non-0 to look for a specific message
+	\param msgId Either 0 to read the first available message or non-XMID_InvalidMessage to look for a specific message
 	with this ID.
 	\returns The message that was read or if no matching message was found a cleared message.
 */
-XsMessage MtbFileCommunicator::readMessage(uint8_t msgId)
+XsMessage MtbFileCommunicator::readMessage(XsXbusMessageId msgId)
 {
 	if (!m_ioInterfaceFile)
 	{
@@ -672,9 +640,9 @@ XsMessage MtbFileCommunicator::readMessage(uint8_t msgId)
 	do
 	{
 		msg = readNextMessage();
-	} while (!msg.empty() && msgId != 0 && msg.getMessageId() != msgId);
+	} while (!msg.empty() && msgId != XMID_InvalidMessage && msg.getMessageId() != msgId);
 
-	if (msgId == 0 || msg.getMessageId() == msgId)
+	if (msgId == XMID_InvalidMessage || msg.getMessageId() == msgId)
 		return msg;
 
 	setLastResult(XRV_OTHER);

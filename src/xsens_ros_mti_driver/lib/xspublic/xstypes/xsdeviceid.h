@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,6 +37,7 @@
 #include "pstdint.h"
 #include "xsstring.h"
 #include "xshandid.h"
+#include "xstypesdef.h"
 #ifdef __cplusplus
 #include <cstring>
 extern "C" {
@@ -95,6 +64,7 @@ XSTYPES_DLL_API int XsDeviceId_isMti6X0(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isMti8X0(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isMtw(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isMtw2(struct XsDeviceId const* thisPtr);
+XSTYPES_DLL_API int XsDeviceId_isMtw2Obskur(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isMtx(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isMtx2(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isBodyPack(struct XsDeviceId const* thisPtr);
@@ -116,6 +86,8 @@ XSTYPES_DLL_API int XsDeviceId_isGlove(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API XsHandId XsDeviceId_side(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isDot(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isRugged(struct XsDeviceId const* thisPtr);
+
+
 
 XSTYPES_DLL_API int XsDeviceId_isImu(struct XsDeviceId const* thisPtr);
 XSTYPES_DLL_API int XsDeviceId_isVru(struct XsDeviceId const* thisPtr);
@@ -148,6 +120,7 @@ XSTYPES_DLL_API void XsDeviceId_typeName(struct XsDeviceId const* thisPtr, XsStr
 XSTYPES_DLL_API void XsDeviceId_type(struct XsDeviceId const* thisPtr, struct XsDeviceId* type);
 XSTYPES_DLL_API void XsDeviceId_deviceType(struct XsDeviceId const* thisPtr, int detailed, struct XsDeviceId* type);
 XSTYPES_DLL_API void XsDeviceId_deviceTypeMask(struct XsDeviceId const* thisPtr, int detailed, struct XsDeviceId* type);
+XSTYPES_DLL_API uint16_t XsDeviceId_basePart(struct XsDeviceId const* thisPtr);
 
 //============================================================================================================
 //==== Deprecated methods follow                                                                         =====
@@ -203,7 +176,7 @@ struct XsDeviceId
 		if (productCode)
 		{
 			XSENS_MSC_WARNING_SUPPRESS(4996)
-			std::strncpy(m_productCode, productCode, XSDEVICEID_PRODUCT_CODE_LEN);
+			std::strncpy(m_productCode, productCode, XS_LEN_PRODUCTCODE); // Max length of productcode is defined as 20 bytes.
 		}
 	}
 
@@ -350,6 +323,11 @@ struct XsDeviceId
 	inline bool isMtw2() const
 	{
 		return 0 != XsDeviceId_isMtw2(this);
+	}
+	/*! \brief \copybrief XsDeviceId_isMtw2Obskur(const struct XsDeviceId*) */
+	inline bool isMtw2Obskur() const
+	{
+		return 0 != XsDeviceId_isMtw2Obskur(this);
 	}
 	/*! \brief \copybrief XsDeviceId_isMtx(const struct XsDeviceId*) */
 	inline bool isMtx() const
@@ -575,6 +553,13 @@ struct XsDeviceId
 		XsDeviceId xtype;
 		XsDeviceId_deviceTypeMask(this, detailed ? 1 : 0, &xtype);
 		return xtype;
+	}
+	/*! \brief Returns the base part of the device Id
+		\return The requested base part
+	*/
+	inline uint16_t basePart() const
+	{
+		return XsDeviceId_basePart(this);
 	}
 
 	/*! \brief Returns true if the \a other deviceId matches this deviceId */
@@ -914,6 +899,7 @@ typedef struct XsDeviceId XsDeviceId;
 #if defined(__cplusplus) && !defined(XSENS_NO_STL)
 namespace std
 {
+/*! \brief Stream output operator for XsDeviceId */
 template<typename _CharT, typename _Traits>
 basic_ostream<_CharT, _Traits>& operator<<(basic_ostream<_CharT, _Traits>& o, XsDeviceId const& xd)
 {

@@ -1,37 +1,5 @@
 
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
-//  All rights reserved.
-//  
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
-//  
-//  1.	Redistributions of source code must retain the above copyright notice,
-//  	this list of conditions, and the following disclaimer.
-//  
-//  2.	Redistributions in binary form must reproduce the above copyright notice,
-//  	this list of conditions, and the following disclaimer in the documentation
-//  	and/or other materials provided with the distribution.
-//  
-//  3.	Neither the names of the copyright holders nor the names of their contributors
-//  	may be used to endorse or promote products derived from this software without
-//  	specific prior written permission.
-//  
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
-//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
-//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
-//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
-//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
-//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
-//  
-
-
-//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2023 Movella Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -164,6 +132,10 @@ struct XsArray
 		, m_descriptor(0)
 	{
 		XsArray_construct(this, descriptor, count, src);
+#ifndef XSENS_NO_EXCEPTIONS
+		if (count && !m_data)
+			throw std::bad_alloc();
+#endif
 	}
 
 	//! \copydoc XsArray_copyConstruct
@@ -175,6 +147,10 @@ struct XsArray
 		, m_descriptor(0)
 	{
 		XsArray_copyConstruct(this, &src);
+#ifndef XSENS_NO_EXCEPTIONS
+		if (src.m_size && !m_data)
+			throw std::bad_alloc();
+#endif
 	}
 
 	//! \brief Creates a array that references the data supplied in \a ref without allocating the data itself
@@ -189,17 +165,15 @@ struct XsArray
 
 #ifndef SWIG
 	//! \brief Move-construct an array using the supplied \a src
-	inline XsArray(XsArray&& src)
+	inline XsArray(XsArray&& src) noexcept
 		: m_data(0)
 		, m_size(0)
 		, m_reserved(0)
 		, m_flags(0)
 		, m_descriptor(src.m_descriptor)
 	{
-		if (!(src.m_flags & XSDF_Managed))
-			XsArray_copy(this, &src);
-		else
-			XsArray_swap(this, &src);
+		assert(src.m_flags & XSDF_Managed);
+		XsArray_swap(this, &src);
 	}
 #endif
 
@@ -218,6 +192,10 @@ struct XsArray
 	{
 		if (this != &src)
 			XsArray_copy(this, &src);
+#ifndef XSENS_NO_EXCEPTIONS
+		if (src.m_size && !m_data)
+			throw std::bad_alloc();
+#endif
 		return *this;
 	}
 #endif
@@ -342,6 +320,10 @@ struct XsArrayImpl : private XsArray
 	inline void reserve(XsSize count)
 	{
 		XsArray_reserve(this, count);
+#ifndef XSENS_NO_EXCEPTIONS
+		if (count && !m_data)
+			throw std::bad_alloc();
+#endif
 	}
 
 	//! \brief Returns the reserved space in number of items
@@ -744,6 +726,10 @@ public:
 	inline void insert(T const* items, XsSize index, XsSize count)
 	{
 		XsArray_insert(this, index, count, items);
+#ifndef XSENS_NO_EXCEPTIONS
+		if (count && !m_data)
+			throw std::bad_alloc();
+#endif
 	}
 
 #ifndef XSENS_NOITERATOR
@@ -844,11 +830,19 @@ public:
 	inline void assign(XsSize count, T const* src)
 	{
 		XsArray_assign(this, count, src);
+#ifndef XSENS_NO_EXCEPTIONS
+		if (count && !m_data)
+			throw std::bad_alloc();
+#endif
 	}
 	/*! \copydoc XsArray_resize \sa XsArray_resize */
 	inline void resize(XsSize count)
 	{
 		XsArray_resize(this, count);
+#ifndef XSENS_NO_EXCEPTIONS
+		if (count && !m_data)
+			throw std::bad_alloc();
+#endif
 	}
 	/*! \brief Set the size of the array to \a count.
 		\details This function changes the size of the array to \a count. The contents of the array after this operation are undefined.
@@ -858,24 +852,46 @@ public:
 	inline void setSize(XsSize count)
 	{
 		if (count != m_size)
+		{
 			XsArray_assign(this, count, 0);
+#ifndef XSENS_NO_EXCEPTIONS
+			if (count && !m_data)
+				throw std::bad_alloc();
+#endif
+		}
 	}
 	/*! \copydoc XsArray_append \sa XsArray_append */
 	inline void append(ArrayImpl const& other)
 	{
 		XsArray_append(this, &other);
+#ifndef XSENS_NO_EXCEPTIONS
+		if (other.m_size && !m_data)
+			throw std::bad_alloc();
+#endif
 	}
 	/*! \brief Assignment operator, copies \a other into this, overwriting the old contents \param other The array to copy from \returns A reference to this \sa XsArray_copy */
 	inline ArrayImpl& operator=(ArrayImpl const& other)
 	{
 		if (this != &other)
+		{
 			XsArray_copy(this, &other);
+#ifndef XSENS_NO_EXCEPTIONS
+			if (other.m_size && !m_data)
+				throw std::bad_alloc();
+#endif
+		}
 		return *this;
 	}
 	/*! \brief Returns whether the array is empty. \details This differs slightly from a straight check for size() != 0 in that it also works for fixed-size XsArrays. \returns true if the array is empty. */
 	inline bool empty() const noexcept
 	{
-		return (size() == 0) || (m_data == 0) || (m_flags & XSDF_Empty);
+		return (size() == 0) || (m_data == 0) || ((m_flags & XSDF_Empty) != 0);
+	}
+
+	/*! \brief Returns whether the array had a bad allocation in its last resize attempt */
+	inline bool badAlloc() const noexcept
+	{
+		return (m_flags & XSDF_BadAlloc) != 0;
 	}
 
 #ifndef XSENS_NOITERATOR
@@ -933,6 +949,13 @@ public:
 	{
 		return XsArray_find(this, &needle);
 	}
+
+	/*! \brief Returns true if \a needle is found within this array */
+	inline bool contains(T const& needle) const
+	{
+		return XsArray_find(this, &needle) >= 0;
+	}
+
 #ifndef SWIG
 	/*! \copydoc XsArray_findPredicate */
 	inline ptrdiff_t findPredicate(T const& needle, XsArrayItemCompareFunc predicate) const
