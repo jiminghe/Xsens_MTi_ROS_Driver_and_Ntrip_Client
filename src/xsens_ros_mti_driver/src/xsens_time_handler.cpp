@@ -4,6 +4,7 @@ XsensTimeHandler::XsensTimeHandler() : time_option(""), prevSampleTimeFine(0), i
 
 ros::Time XsensTimeHandler::convertUtcTimeToRosTime(const XsDataPacket &packet)
 {
+    std::lock_guard<std::mutex> lock(m_mutex);  // Lock the mutex at the beginning of the method
     if (time_option == "mti_utc" && packet.containsUtcTime())
     {
         //ROS_INFO("time_option is mti_utc");
@@ -27,7 +28,7 @@ ros::Time XsensTimeHandler::convertUtcTimeToRosTime(const XsDataPacket &packet)
 
         if (isFirstFrame)
         {
-            //ROS_INFO("time_option is mti_sampletime, first frame");
+            //ROS_INFO("time_option is mti_sampletime, first frame, timestamp: %u", currentSampleTimeFine);
             isFirstFrame = false;
             firstUTCTimestamp = ros::Time::now();
             prevSampleTimeFine = currentSampleTimeFine;
@@ -37,11 +38,20 @@ ros::Time XsensTimeHandler::convertUtcTimeToRosTime(const XsDataPacket &packet)
         {
             int64_t timeDiff = static_cast<int64_t>(currentSampleTimeFine) - static_cast<int64_t>(prevSampleTimeFine);
 
-            // Checking for wrap around
+            // Checking for wraparound
             if (timeDiff < 0)
             {
-                // If wrap around occurred, adjust timeDiff
-                timeDiff += static_cast<int64_t>(ROLLOVER) + 1; // adding 1 because the range is from 0 to ROLLOVER inclusive.
+                // Check if the difference is significant enough to be considered a wraparound
+                if (timeDiff < -static_cast<int64_t>(m_RollOver / 2))
+                {
+                    // If wrap around occurred, adjust timeDiff
+                    //ROS_INFO("time_option is mti_sampletime, Wraparound Detected. Current: %u, Previous: %u", currentSampleTimeFine, prevSampleTimeFine);
+                    timeDiff += m_RollOver;
+                }
+                else
+                {
+                    ROS_WARN("Minor timestamp decrement detected but not considered as wraparound. Current: %u, Previous: %u", currentSampleTimeFine, prevSampleTimeFine);
+                }
             }
 
             ros::Duration deltaTime(timeDiff * 0.0001); // Convert to seconds using the multiplier 0.0001
@@ -53,12 +63,19 @@ ros::Time XsensTimeHandler::convertUtcTimeToRosTime(const XsDataPacket &packet)
     }
     else
     {
-        //ROS_INFO("time_option is host controller time");
+        ROS_INFO("time_option is host controller time");
         return ros::Time::now(); // returns ros time
     }
 }
 
 void XsensTimeHandler::setTimeOption(const std::string &option)
 {
+    std::lock_guard<std::mutex> lock(m_mutex); // Lock the mutex
     time_option = option;
+}
+
+void XsensTimeHandler::setRollover(const uint32_t &rollOver)
+{
+    std::lock_guard<std::mutex> lock(m_mutex); // Lock the mutex
+    m_RollOver = rollOver;
 }
