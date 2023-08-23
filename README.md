@@ -2,6 +2,12 @@
 # Xsens MTi ROS Driver and Ntrip Client
 
 This code was based on the official ``xsens_ros_mti_driver`` and tested on MTi-680.
+
+## ROS vs ROS2 Versions
+
+Note that this branch contains the ROS implementation for the packages. If you are looking for the ROS2 version, you should go to the [`ros2`](https://github.com/jiminghe/Xsens_MTi_ROS_Driver_and_Ntrip_Client/tree/ros2) branch
+
+## Device Settings - Output Configurations
 #### Note: the UTC Time, SampleTimeFine, Status Word, Latitude and Longitude needs to be enabled, in order to get GPGGA data for topic ``/nmea``: MT Manager - Device Settings - Output Configuration , select "UTC Time, Sample TimeFine, Status Word, Latitude and Longitude" and other required data, click "Apply"
 
 Here are the recommended Output Configurations and Device Settings:
