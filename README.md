@@ -27,7 +27,7 @@ Here are the recommended Output Configurations and Device Settings:
 
 change:
  - ``lib/xspublic/xscontroller/iointerface.h``, line 138, change to ``PO_OneStopBIt`` for PO_XsensDefaults.
- - ``lib/xspublic/xscommon/threading.cpp``, updated to work with glibc 2.35 in ubuntu 22 OS.
+ - ``lib/xspublic/xscommon/threading.cpp``, updated to work with glibc 2.35.
 
 ## Ntrip_Client
 The Ntrip_client subscribes to the ``/nmea`` rostopic from ``xsens_ros_mti_driver``, and wait until it gets data for maximum 300 sec, it will send GPGGA to the Ntrip Caster(Server) every 10 seconds.
