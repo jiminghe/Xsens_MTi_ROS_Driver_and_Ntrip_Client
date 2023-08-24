@@ -34,9 +34,8 @@
 #define STATUSPUBLISHER_H
 
 #include "packetcallback.h"
-#include <diagnostic_msgs/DiagnosticArray.h>
-#include <bitset>
-using namespace std;
+#include "xsens_mti_driver/XsStatusWord.h"
+
 
 struct StatusPublisher : public PacketCallback
 {
@@ -47,46 +46,43 @@ struct StatusPublisher : public PacketCallback
     {
         int pub_queue_size = 5;
         ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<diagnostic_msgs::KeyValue>("status", pub_queue_size);
+        pub = node.advertise<xsens_mti_driver::XsStatusWord>("status", pub_queue_size);
+    }
+
+    void parseToMessage(xsens_mti_driver::XsStatusWord &msg, uint32_t status)
+    {
+        msg.selftest = status & (1 << 0);
+        msg.filter_valid = status & (1 << 1);
+        msg.gnss_fix = status & (1 << 2);
+        msg.no_rotation_update_status = (status >> 3) & 0x3; //status & 0x18;
+        msg.representative_motion = status & (1 << 5);
+        msg.clock_bias_estimation = status & (1 << 6);
+        msg.clipflag_acc_x = status & (1 << 8);
+        msg.clipflag_acc_y = status & (1 << 9);
+        msg.clipflag_acc_z = status & (1 << 10);
+        msg.clipflag_gyr_x = status & (1 << 11);
+        msg.clipflag_gyr_y = status & (1 << 12);
+        msg.clipflag_gyr_z = status & (1 << 13);
+        msg.clipflag_mag_x = status & (1 << 14);
+        msg.clipflag_mag_y = status & (1 << 15);
+        msg.clipflag_mag_z = status & (1 << 16);
+        msg.clipping_indication = status & (1 << 19);
+        msg.syncin_marker = status & (1 << 21);
+        msg.syncout_marker = status & (1 << 22);
+        msg.filter_mode = (status >> 23) & 0x7;//status & 0x03800000;
+        msg.have_gnss_time_pulse = status & (1 << 26);
+        msg.rtk_status = (status >> 27) & 0x3;//status & 0x18000000;
     }
 
     void operator()(const XsDataPacket &packet, ros::Time timestamp)
     {
         if (packet.containsStatus())
         {
-            diagnostic_msgs::KeyValue msg;
+            xsens_mti_driver::XsStatusWord msg;
 
-            msg.key = "StatusWord";
-            // msg.value = bitset<32>(packet.status()).to_string();
-            // pub.publish(msg);
-            string statusMsg = "";
             uint32_t status = packet.status();
+            parseToMessage(msg, status);
 
-            bool gnssFix = status & (1<<2);
-            if(gnssFix)
-            {
-                statusMsg += "GNSS: Fix, | ";
-            }
-            else
-            {
-                statusMsg += "GNSS: No, | ";
-            }
-
-            uint32_t rtkStatus = status & 0x18000000;
-            switch (rtkStatus)
-            {
-                case 0:
-                    statusMsg += "RTK: No, | ";
-                    break;
-                case 0x8000000:
-                    statusMsg += "RTK: Floating, | ";
-                    break;
-                case 0x10000000:
-                    statusMsg += "RTK: Fix, | ";
-                    break;
-            }
-
-            msg.value = statusMsg;
             pub.publish(msg);
 
 

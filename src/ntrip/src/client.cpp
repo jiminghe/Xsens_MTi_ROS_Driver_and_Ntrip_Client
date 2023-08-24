@@ -17,6 +17,7 @@ int port = 8001;
 double longitude = 0, latitude = 0, height = 0;
 nmea_msgs::Sentence nmea_msg;
 NtripClient ntrip_client; // Make ntrip_client a global variable
+int report_interval = 1; // default value of 1 second frequency sending to NTRIP Caster
 
 //define callback function gnssCallback to save the lat, long, height
 void gnssCallback(const nmea_msgs::Sentence &msg)
@@ -37,6 +38,7 @@ int main(int argc, char **argv)
     nh.param<std::string>("passwd", passwd, "");
     nh.param<std::string>("mountpoint", mountpoint, "");
     nh.param<std::string>("rtcm_topic", rtcm_topic, "/rtcm");
+    nh.param<int>("report_interval", report_interval, 1);
 
     ros::Publisher pubRTCM = nh.advertise<mavros_msgs::RTCM>(rtcm_topic, 10);
     ros::Subscriber sub = nh.subscribe("/nmea", 100, gnssCallback);
@@ -61,7 +63,7 @@ int main(int argc, char **argv)
                                 rmsg.data = data;
                                 pubRTCM.publish(rmsg); });
 
-    ntrip_client.set_report_interval(10);
+    ntrip_client.set_report_interval(report_interval);
     ntrip_client.Run();
     std::this_thread::sleep_for(std::chrono::seconds(1)); // Maybe take longer?
 

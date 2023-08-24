@@ -5,6 +5,7 @@
         <param name="user" type="string" value="Your_User_Name" /> <!-- Change to your username -->
         <param name="passwd" type = "string" value="Your_Password" /> <!-- Change to your password -->
         <param name="mountpoint" type = "string" value="RTCM33_GRCE" /> <!-- Change to your mountpoint -->
+        <param name="report_interval" type = "int" value="1" /> <!-- the report interval to the NTRIP Caster, default is 1 sec -->
     </node>
 </launch>
 

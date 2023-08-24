@@ -37,7 +37,7 @@
 XdaCallback::XdaCallback(size_t maxBufferSize)
 {
 	m_maxBufferSize = maxBufferSize;
-	std::string time_option;
+	std::string time_option = "mti_utc";
 	ros::param::get("~time_option", time_option);
 	m_timeHandler.setTimeOption(time_option);
 }
