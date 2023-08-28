@@ -7,6 +7,11 @@ This code was based on the [bluespace_ai_xsens_ros_mti_driver](https://github.co
 
 Note that this branch contains the ROS2 implementation for the packages. If you are looking for the ROS1 version, you should go to the [`main`](https://github.com/jiminghe/Xsens_MTi_ROS_Driver_and_Ntrip_Client/tree/main) branch
 
+## How to clone this ROS2 branch
+
+```
+git clone --recursive --branch ros2 https://github.com/jiminghe/Xsens_MTi_ROS_Driver_and_Ntrip_Client.git
+```
 
 ## Device Settings - Output Configurations
 #### Note: the UTC Time, SampleTimeFine, Status Word, Latitude and Longitude needs to be enabled, in order to get GPGGA data for topic ``/nmea``: MT Manager - Device Settings - Output Configuration , select "UTC Time, Sample TimeFine, Status Word, Latitude and Longitude" and other required data, click "Apply"
