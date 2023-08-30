@@ -54,27 +54,67 @@ struct StatusPublisher : public PacketCallback
 
     void parseToMessage(xsens_mti_ros2_driver::msg::XsStatusWord &msg, uint32_t status)
     {
-        msg.selftest = status & (1 << 0);
-        msg.filter_valid = status & (1 << 1);
-        msg.gnss_fix = status & (1 << 2);
-        msg.no_rotation_update_status = (status >> 3) & 0x3; //status & 0x18;
-        msg.representative_motion = status & (1 << 5);
-        msg.clock_bias_estimation = status & (1 << 6);
-        msg.clipflag_acc_x = status & (1 << 8);
-        msg.clipflag_acc_y = status & (1 << 9);
-        msg.clipflag_acc_z = status & (1 << 10);
-        msg.clipflag_gyr_x = status & (1 << 11);
-        msg.clipflag_gyr_y = status & (1 << 12);
-        msg.clipflag_gyr_z = status & (1 << 13);
-        msg.clipflag_mag_x = status & (1 << 14);
-        msg.clipflag_mag_y = status & (1 << 15);
-        msg.clipflag_mag_z = status & (1 << 16);
-        msg.clipping_indication = status & (1 << 19);
-        msg.syncin_marker = status & (1 << 21);
-        msg.syncout_marker = status & (1 << 22);
-        msg.filter_mode = (status >> 23) & 0x7;//status & 0x03800000;
-        msg.have_gnss_time_pulse = status & (1 << 26);
-        msg.rtk_status = (status >> 27) & 0x3;//status & 0x18000000;
+        uint32_t temp; // Temporary variable to hold bitwise results
+
+        temp = status & (1 << 0);
+        msg.selftest = (temp != 0);
+
+        temp = status & (1 << 1);
+        msg.filter_valid = (temp != 0);
+
+        temp = status & (1 << 2);
+        msg.gnss_fix = (temp != 0);
+
+        msg.no_rotation_update_status = (status >> 3) & 0x3; // status & 0x18;
+
+        temp = status & (1 << 5);
+        msg.representative_motion = (temp != 0);
+
+        temp = status & (1 << 6);
+        msg.clock_bias_estimation = (temp != 0);
+
+        temp = status & (1 << 8);
+        msg.clipflag_acc_x = (temp != 0);
+
+        temp = status & (1 << 9);
+        msg.clipflag_acc_y = (temp != 0);
+
+        temp = status & (1 << 10);
+        msg.clipflag_acc_z = (temp != 0);
+
+        temp = status & (1 << 11);
+        msg.clipflag_gyr_x = (temp != 0);
+
+        temp = status & (1 << 12);
+        msg.clipflag_gyr_y = (temp != 0);
+
+        temp = status & (1 << 13);
+        msg.clipflag_gyr_z = (temp != 0);
+
+        temp = status & (1 << 14);
+        msg.clipflag_mag_x = (temp != 0);
+
+        temp = status & (1 << 15);
+        msg.clipflag_mag_y = (temp != 0);
+
+        temp = status & (1 << 16);
+        msg.clipflag_mag_z = (temp != 0);
+
+        temp = status & (1 << 19);
+        msg.clipping_indication = (temp != 0);
+
+        temp = status & (1 << 21);
+        msg.syncin_marker = (temp != 0);
+
+        temp = status & (1 << 22);
+        msg.syncout_marker = (temp != 0);
+
+        msg.filter_mode = (status >> 23) & 0x7; // status & 0x03800000;
+
+        temp = status & (1 << 26);
+        msg.have_gnss_time_pulse = (temp != 0);
+
+        msg.rtk_status = (status >> 27) & 0x3; // status & 0x18000000;
     }
 
     void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
