@@ -119,3 +119,10 @@ or ``rostopic echo /status`` to check the RTK Fix type, it should be 1(RTK Float
 | tf                       | geometry_msgs/TransformStamped  | transformed orientation                                                                                                                       | 1-400Hz(MTi-600 and MTi-100 series), 1-100Hz(MTi-1 series)                      |
 
 Please refer to [MTi Family Reference Manual](https://mtidocs.xsens.com/mti-system-overview) for detailed definition of data. 
+
+
+## Troubleshooting
+
+fatal error: `xsens_mti_driver/XsStatusWord.h : No such file or directory`
+- If you had previously installed the official version of MTi ROS Driver, and if you manually delete the build and devel folders, there will be errors, you could do catkin_make again to make it work. It is recommended to use `rm -rf build devel` under your catkin_ws, which ensures that the build and devel directories are completely removed, and forces `catkin_make` to start from scratch, properly setting up the build process and dependencies.
+
