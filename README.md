@@ -1,7 +1,7 @@
 
 # Xsens MTi ROS Driver and Ntrip Client
 
-This code was based on the official ``xsens_ros_mti_driver`` and tested on MTi-680.
+This code was based on the official ``xsens_ros_mti_driver`` and tested on MTi-680 with ubuntu 20.04 LTS, ROS noetic.
 
 ## ROS vs ROS2 Versions
 
@@ -43,8 +43,8 @@ sudo apt install ros-[ROSDISTRIBUTION]-mavros-msgs
 ```
 for example for ROS Melodic:
 ```
-sudo apt install ros-melodic-nmea-msgs
-sudo apt install ros-melodic-mavros-msgs
+sudo apt install ros-noetic-nmea-msgs
+sudo apt install ros-noetic-mavros-msgs
 ```
 
 clone the source file to your ``catkin_ws``, and run the code below:
