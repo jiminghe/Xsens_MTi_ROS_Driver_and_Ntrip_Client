@@ -35,6 +35,7 @@
 
 #include <ros/ros.h>
 #include <xstypes/xsdatapacket.h>
+#include <mutex>
 
 class XsensTimeHandler
 {
