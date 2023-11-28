@@ -68,5 +68,5 @@ catkin_package(
   INCLUDE_DIRS
 )
 
-add_executable(ntrip src/ntrip_util.cpp src/ntrip_client.cpp src/client.cpp)
-target_link_libraries(ntrip ${catkin_LIBRARIES} )
+add_executable(ntrip_node src/ntrip_util.cpp src/ntrip_client.cpp src/client.cpp)
+target_link_libraries(ntrip_node ${catkin_LIBRARIES} )
