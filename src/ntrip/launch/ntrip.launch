@@ -1,5 +1,5 @@
 <launch>   
-    <node pkg="ntrip" type="ntrip" name="" output="screen">
+    <node name="ntrip_node" pkg="ntrip" type="ntrip_node" output="screen">
         <param name="ip" type="string"  value="120.253.239.161" />  <!-- Change to the IP address of Your NTRIP service-->
         <param name="port" type="int" value="8001" />  <!-- Change to your port number -->
         <param name="user" type="string" value="Your_User_Name" /> <!-- Change to your username -->
