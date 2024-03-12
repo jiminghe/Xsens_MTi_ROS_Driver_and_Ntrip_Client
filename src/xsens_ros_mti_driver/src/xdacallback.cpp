@@ -37,9 +37,22 @@
 XdaCallback::XdaCallback(size_t maxBufferSize)
 {
 	m_maxBufferSize = maxBufferSize;
-	std::string time_option = "mti_utc";
+	int time_option = 0; //default is "mti_utc"
 	ros::param::get("~time_option", time_option);
 	m_timeHandler.setTimeOption(time_option);
+	//if else to check time_option rosinfo to print time_option
+	if (time_option == 0)
+	{
+		ROS_INFO("Rosnode time_option is utc time from MTi");
+	}
+	else if (time_option == 1)
+	{
+		ROS_INFO("Rosnode time_option is sample time fine from MTi");
+	}
+	else
+	{
+		ROS_WARN("Rosnode time_option is using host controller's ros time, no recommended, use MT Manager - Device Settings - Output Configurations to select utc time or sample time fine, and set time_option to 0 or 1 in the xsens_mti_node.yaml file. ");
+	}
 }
 
 XdaCallback::~XdaCallback() throw()
@@ -84,4 +97,15 @@ void XdaCallback::onLiveDataAvailable(XsDevice *, const XsDataPacket *packet)
 	// the waiting thread only to block again
 	lock.unlock();
 	m_condition.notify_one();
+}
+
+
+void XdaCallback::onError(XsDevice *dev, XsResultValue error)
+{
+	ROS_ERROR("MTi Error: %s", XsResultValue_toString(error));
+	if(error == XRV_DATAOVERFLOW)
+	{
+		ROS_ERROR("Data overflow occurred. Use MT Manager - Device Settings, to change the baudrate to higher value like 921600 or 2000000!! Optionally, change the enable_outputConfig to true to change the output in the xsens_mti_node.yaml. If both doesn't work, reduce your output data rate.");
+	}
+
 }

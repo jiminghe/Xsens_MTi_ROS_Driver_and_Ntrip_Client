@@ -30,58 +30,44 @@
 //  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
 //  
 
-#ifndef NEMAPUBLISHER_H
-#define NEMAPUBLISHER_H
+#ifndef ORIENTATIONEULERPUBLISHER_H
+#define ORIENTATIONEULERPUBLISHER_H
 
 #include "packetcallback.h"
-#include <nmea_msgs/Sentence.h>
-#include <string>
-#include <sstream>
-#include <iomanip>
-#include <cmath>
-#include "ntrip_util.h"
+#include <geometry_msgs/Vector3Stamped.h>
 
-struct NMEAPublisher : public PacketCallback
+struct OrientationEulerPublisher : public PacketCallback
 {
     ros::Publisher pub;
     std::string frame_id = DEFAULT_FRAME_ID;
 
-    XsDataPacket latest_packet; // to store the latest packet
-    bool new_data_available = false;
-    int packet_counter = 0; // Counter to track the number of packets received
 
-    NMEAPublisher(ros::NodeHandle &node)
+    OrientationEulerPublisher(ros::NodeHandle &node)
     {
         int pub_queue_size = 5;
         ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<nmea_msgs::Sentence>("nmea", pub_queue_size);
+        pub = node.advertise<geometry_msgs::Vector3Stamped>("filter/euler", pub_queue_size);
         ros::param::get("~frame_id", frame_id);
     }
 
     void operator()(const XsDataPacket &packet, ros::Time timestamp)
     {
-        nmea_msgs::Sentence nmea_msg;
-        nmea_msg.header.stamp = timestamp;
-        nmea_msg.header.frame_id = frame_id;
-        
-        if (packet.containsRawGnssPvtData() && packet.containsStatus())
+        if (packet.containsOrientation())
         {
-            std::string gga_buffer;
-            int result = libntrip::generateGGA(packet, &gga_buffer);
-            if (result == 0) // Check if generateGGA was successful and there's no checksum error
-            {
-                nmea_msg.sentence = gga_buffer;
-                pub.publish(nmea_msg);
-            }
-            else
-            {
-                // Optionally, log an error or take other actions if generateGGA fails
-                ROS_WARN("Failed to generate valid GPGGA message. Checksum error detected.");
-            }
-        }
-        
-    }
+            geometry_msgs::Vector3Stamped msg;
 
+            msg.header.stamp = timestamp;
+            msg.header.frame_id = frame_id;
+
+            XsEuler euler = packet.orientationEuler();
+
+            msg.vector.x = euler.roll();
+            msg.vector.y = euler.pitch();
+            msg.vector.z = euler.yaw();
+
+            pub.publish(msg);
+        }
+    }
 };
 
 #endif

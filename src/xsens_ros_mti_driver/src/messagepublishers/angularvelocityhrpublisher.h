@@ -30,58 +30,50 @@
 //  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
 //  
 
-#ifndef NEMAPUBLISHER_H
-#define NEMAPUBLISHER_H
+#ifndef ANGULARVELOCITYHRPUBLISHER_H
+#define ANGULARVELOCITYHRPUBLISHER_H
 
 #include "packetcallback.h"
-#include <nmea_msgs/Sentence.h>
-#include <string>
-#include <sstream>
-#include <iomanip>
-#include <cmath>
-#include "ntrip_util.h"
+#include <geometry_msgs/Vector3Stamped.h>
 
-struct NMEAPublisher : public PacketCallback
+/*
+Publisher for AngularVelocity(RateOfTurn) High Rate 
+*/
+struct AngularVelocityHRPublisher : public PacketCallback
 {
     ros::Publisher pub;
     std::string frame_id = DEFAULT_FRAME_ID;
 
-    XsDataPacket latest_packet; // to store the latest packet
-    bool new_data_available = false;
-    int packet_counter = 0; // Counter to track the number of packets received
 
-    NMEAPublisher(ros::NodeHandle &node)
+    AngularVelocityHRPublisher(ros::NodeHandle &node)
     {
         int pub_queue_size = 5;
         ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<nmea_msgs::Sentence>("nmea", pub_queue_size);
+        pub = node.advertise<geometry_msgs::Vector3Stamped>("imu/angular_velocity_hr", pub_queue_size);
         ros::param::get("~frame_id", frame_id);
     }
 
     void operator()(const XsDataPacket &packet, ros::Time timestamp)
     {
-        nmea_msgs::Sentence nmea_msg;
-        nmea_msg.header.stamp = timestamp;
-        nmea_msg.header.frame_id = frame_id;
-        
-        if (packet.containsRawGnssPvtData() && packet.containsStatus())
+        if (packet.containsRateOfTurnHR())
         {
-            std::string gga_buffer;
-            int result = libntrip::generateGGA(packet, &gga_buffer);
-            if (result == 0) // Check if generateGGA was successful and there's no checksum error
-            {
-                nmea_msg.sentence = gga_buffer;
-                pub.publish(nmea_msg);
-            }
-            else
-            {
-                // Optionally, log an error or take other actions if generateGGA fails
-                ROS_WARN("Failed to generate valid GPGGA message. Checksum error detected.");
-            }
-        }
-        
-    }
+            geometry_msgs::Vector3Stamped msg;
 
+            std::string frame_id = DEFAULT_FRAME_ID;
+            ros::param::getCached("~frame_id", frame_id);
+
+            msg.header.stamp = timestamp;
+            msg.header.frame_id = frame_id;
+
+            XsVector gyro_hr = packet.rateOfTurnHR();
+
+            msg.vector.x = gyro_hr[0];
+            msg.vector.y = gyro_hr[1];
+            msg.vector.z = gyro_hr[2];
+
+            pub.publish(msg);
+        }
+    }
 };
 
 #endif

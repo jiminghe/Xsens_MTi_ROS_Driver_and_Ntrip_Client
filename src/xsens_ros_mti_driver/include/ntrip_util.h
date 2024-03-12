@@ -24,17 +24,13 @@
 #define NTRIPLIB_NTRIP_UTIL_H_
 
 #include <string>
-#include <xstypes/xsrawgnsspvtdata.h>
+#include <xstypes/xsdatapacket.h>
 
 
 namespace libntrip {
 
 int BccCheckSumCompareForGGA(char const* src);
-int Base64Encode(std::string const& raw, std::string* out);
-int Base64Decode(std::string const& raw, std::string* out);
-// int GGAFrameGenerate(double latitude, double longitude,
-//     double altitude, std::string* gga_out);
-int generateGGA(XsRawGnssPvtData const& pvtData, std::string* gga_out);
+int generateGGA(const XsDataPacket &packet, std::string* gga_out);
 
 }  
 

@@ -49,27 +49,32 @@ class PacketCallback;
 class XdaInterface
 {
 public:
-	XdaInterface();
+	explicit XdaInterface(ros::NodeHandle &node);
 	~XdaInterface();
 
 	void spinFor(std::chrono::milliseconds timeout);
-	void registerPublishers(ros::NodeHandle &node);
+	void registerPublishers();
 	void rtcmCallback(const mavros_msgs::RTCM::ConstPtr &msg);
 	bool connectDevice();
 	bool prepare();
-	void callbackGyroBiasEstimation(const ros::TimerEvent& event);
-	bool manualGyroBiasEstimation(uint16_t duration);
 	void close();
+	void setupManualGyroBiasEstimation();
 
 private:
 	void registerCallback(PacketCallback *cb);
 	bool handleError(std::string error);
+	bool configureSensorSettings();
+	bool manualGyroBiasEstimation(uint16_t duration);
+
 
 	XsControl *m_control;
 	XsDevice *m_device;
+	XsString m_productCode;
 	XsPortInfo m_port;
 	XdaCallback m_xdaCallback;
 	std::list<PacketCallback *> m_callbacks;
+	ros::NodeHandle &m_node; 
+	ros::Timer m_manualGyroBiasTimer; // Timer for Manual Gyro Bias Estimation
 };
 
 #endif

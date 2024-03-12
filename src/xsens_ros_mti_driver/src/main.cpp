@@ -44,31 +44,32 @@ Journaller *gJournal = 0;
 
 int main(int argc, char *argv[])
 {
-	ros::init(argc, argv, "xsens_driver");
-	ros::NodeHandle node;
+    ros::init(argc, argv, "xsens_driver");
+    ros::NodeHandle node;
 
-	XdaInterface *xdaInterface = new XdaInterface();
+    // Pass the node to the XdaInterface constructor
+    XdaInterface xdaInterface(node);
 
-	xdaInterface->registerPublishers(node);
+    if (!xdaInterface.connectDevice())
+        return -1;
+    
+    xdaInterface.registerPublishers();
 
-	if (!xdaInterface->connectDevice())
-		return -1;
+    if (!xdaInterface.prepare())
+        return -1;
 
-	if (!xdaInterface->prepare())
-		return -1;
+    ros::Subscriber sub = node.subscribe("/rtcm", 100, &XdaInterface::rtcmCallback, &xdaInterface);
 
-	ros::Subscriber sub = node.subscribe("/rtcm",100,&XdaInterface::rtcmCallback,xdaInterface);
+    while (ros::ok())
+    {
+        xdaInterface.spinFor(milliseconds(1));
 
-	while (ros::ok())
-	{
-		xdaInterface->spinFor(milliseconds(1));
+        ros::spinOnce();
+    }
 
-		ros::spinOnce();
-	}
+    xdaInterface.close();
 
-	xdaInterface->close();
-
-	return 0;
+    return 0;
 }
 
 

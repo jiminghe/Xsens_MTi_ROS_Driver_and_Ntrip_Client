@@ -55,6 +55,8 @@ public:
 
 protected:
 	void onLiveDataAvailable(XsDevice *, const XsDataPacket *packet) override;
+	//defined in xscallback.h: 	virtual void onError(XsDevice* dev, XsResultValue error)
+	void onError(XsDevice *, XsResultValue error) override;
 
 private:
 	std::mutex m_mutex;
