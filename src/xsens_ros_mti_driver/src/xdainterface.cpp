@@ -438,7 +438,7 @@ bool XdaInterface::prepare()
 	manualGyroBiasEstimation(6);
 
 	// Setup Periodic Manual Gyro Bias Estimation
-    setupManualGyroBiasEstimation();
+        setupManualGyroBiasEstimation();
 
 	return true;
 }
@@ -565,16 +565,9 @@ bool XdaInterface::handleError(std::string error)
 
 
 /**
- * \brief Configures the sensor output based on ROS parameters.
+ * \brief Configures the sensor settings based on ROS parameters.
  *
- * This function configures the sensor output by checking if the output configuration
- * is enabled through a ROS parameter. If enabled, it sets the device into configuration mode
- * and configures various output data types with their respective output data rates (ODR).
- * The function supports different configurations based on the device type, including
- * specific settings for devices with GNSS/INS capabilities, VRU/AHRS capabilities, and
- * MTi devices. It also adjusts the serial baud rate to accommodate the amount of output data.
- *
- * \return Returns true if the sensor output was successfully configured; otherwise, it
+ * \return Returns true if the sensor was successfully configured; otherwise, it
  *         returns false if it encounters any error during the configuration process.
  */
 bool XdaInterface::configureSensorSettings()
@@ -779,19 +772,18 @@ bool XdaInterface::configureSensorSettings()
 
 		if(isDeviceGnssIns)
 		{
-			//latlon, same as dq
 			if(ros::param::get("~pub_positionLLA", should_config) && should_config)
 			{
 				if(isMTiX)
 				{
 					configArray.push_back(XsOutputConfiguration(XDI_LatLon | XDI_SubFormatFp1632, ODRoptionLower)); //FP1632
-					configArray.push_back(XsOutputConfiguration(XDI_AltitudeEllipsoid | XDI_SubFormatFp1632, ODRoptionLower));
+					configArray.push_back(XsOutputConfiguration(XDI_AltitudeEllipsoid | XDI_SubFormatFp1632, ODRoptionLower)); //FP1632
 					ROS_INFO("XDI_LatLon, XDI_AltitudeEllipsoid, %dHz", ODRoptionLower);
 				}
 				else
 				{
 					configArray.push_back(XsOutputConfiguration(XDI_LatLon | XDI_SubFormatFp1632, ODRoption)); //FP1632
-					configArray.push_back(XsOutputConfiguration(XDI_AltitudeEllipsoid | XDI_SubFormatFp1632, ODRoption));
+					configArray.push_back(XsOutputConfiguration(XDI_AltitudeEllipsoid | XDI_SubFormatFp1632, ODRoption)); //FP1632
 					ROS_INFO("XDI_LatLon, XDI_AltitudeEllipsoid, %dHz", ODRoption);
 				}
 			}
@@ -805,7 +797,7 @@ bool XdaInterface::configureSensorSettings()
 				}
 				else
 				{
-					configArray.push_back(XsOutputConfiguration(XDI_VelocityXYZ | XDI_SubFormatFp1632, ODRoption));
+					configArray.push_back(XsOutputConfiguration(XDI_VelocityXYZ | XDI_SubFormatFp1632, ODRoption)); //FP1632
 					ROS_INFO("XDI_VelocityXYZ, %dHz", ODRoption);
 				}
 			}
@@ -844,7 +836,7 @@ bool XdaInterface::configureSensorSettings()
 				}
 			}
 
-			//XDI_GnssPvtData output data rate is fixed at 5Hz.
+			//XDI_GnssPvtData output data rate is fixed at 4Hz.
 			configArray.push_back(XsOutputConfiguration(XDI_GnssPvtData, 4));
 			ROS_INFO("XDI_GnssPvtData, 4Hz");
 
@@ -860,7 +852,7 @@ bool XdaInterface::configureSensorSettings()
 
 
 		
-		//ROS_INFO print the 5th to 7th characters of the product code to check if it is mti-680(G).
+		//ROS_INFO print the 5th to 7th characters of the product code to check if it is mti-680(G) or other mti-600 models.
 		bool isMTi620 = false;
 		bool isMTi630 = false;
 		bool isMTi670 = false;
@@ -1188,7 +1180,7 @@ bool XdaInterface::configureSensorSettings()
 						}
 						else
 						{
-							//TODO: For MTI-620 or MTI-630, for example: "Responsive/VRU"
+							//For MTI-620 or MTI-630, for example: "Responsive/VRU"
 							XsString filterToSet = XsString(rollpitchLabel) + XsString("/") + XsString(yawLabel);
 							
 								if(m_device->setOnboardFilterProfile(filterToSet))
