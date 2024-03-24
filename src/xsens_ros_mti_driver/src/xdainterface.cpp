@@ -237,6 +237,13 @@ bool XdaInterface::connectDevice()
 	bool scan_for_devices = false;
 	ros::param::get("~scan_for_devices", scan_for_devices);
 
+	int timeout = 100; //100ms is default, but for Jetson Nano /dev/ttyTHS1, need to use a higher value.
+	if (ros::param::has("~serial_timeout"))
+	{
+		ros::param::get("~serial_timeout", timeout);
+		ROS_INFO("Found serial timeout parameter: %d", timeout);
+	}
+
 	if (!scan_for_devices)
 	{
 		// Read baudrate parameter if set
@@ -248,8 +255,6 @@ bool XdaInterface::connectDevice()
 			baudrate = XsBaud::numericToRate(baudrateParam);
 		}
 
-
-
 		// Read port parameter if set
 		if (ros::param::has("~port"))
 		{
@@ -258,7 +263,7 @@ bool XdaInterface::connectDevice()
 			ROS_INFO("Found port name parameter: %s", portName.c_str());
 			mtPort = XsPortInfo(portName, baudrate);
 			ROS_INFO("Scanning port %s ...", portName.c_str());
-			if (!XsScanner::scanPort(mtPort, baudrate))
+			if (!XsScanner::scanPort(mtPort, baudrate, timeout))
 				return handleError("No MTi device found. Verify port and baudrate.");
 
 		}
@@ -268,7 +273,7 @@ bool XdaInterface::connectDevice()
 	else
 	{
 		ROS_INFO("Scanning for devices...");
-		XsPortInfoArray portInfoArray = XsScanner::scanPorts(baudrate);
+		XsPortInfoArray portInfoArray = XsScanner::scanPorts(baudrate, timeout);
 
 		for (auto const &portInfo : portInfoArray)
 		{
