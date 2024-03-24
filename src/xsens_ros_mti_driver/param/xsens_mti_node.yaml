@@ -25,6 +25,12 @@ scan_for_devices: true
 #port: '/dev/ttyUSB0' # Uncomment and set your device's port.
 #baudrate: 115200     # Uncomment and set your device's baudrate.
 
+# Scan and serial communication timeout
+# -------------------------------------
+# the Xsens xspublic library default value is 100ms,  it indicates how long it waits for the reply, 
+# for Jetson Nano, the /dev/ttyTSH1 port needs to set a higher value like 150ms
+# serial_timeout: 150
+
 # Device Scanning Selection
 # ----------------
 # Specify the device ID when operating multiple devices to select a specific one.
