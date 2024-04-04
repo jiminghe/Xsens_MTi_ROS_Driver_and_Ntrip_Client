@@ -875,7 +875,7 @@ bool XdaInterface::configureSensorSettings()
 		{
 			//enable_inrun_compass_calibration
 			bool enable_inrun_compass_calibration = false;
-			if(ros::param::get("~enable_inrun_compass_calibration", enable_inrun_compass_calibration) && enable_inrun_compass_calibration)
+			if(ros::param::get("~enable_inrun_compass_calibration", enable_inrun_compass_calibration))
 			{
 				if(enable_inrun_compass_calibration)
 				{
@@ -910,7 +910,7 @@ bool XdaInterface::configureSensorSettings()
 		{
 			//enable_active_heading_stabilization
 			bool enable_active_heading_stabilization = false;
-			if(ros::param::get("~enable_active_heading_stabilization", enable_active_heading_stabilization) && enable_active_heading_stabilization)
+			if(ros::param::get("~enable_active_heading_stabilization", enable_active_heading_stabilization))
 			{
 				if(enable_active_heading_stabilization)
 				{
@@ -949,7 +949,7 @@ bool XdaInterface::configureSensorSettings()
 			// use ros:param to get 
 			//enable_orientation_smoother, enable_position_velocity_smoother, enable_continuous_zero_rotation_update
 			bool enable_orientation_smoother = false;
-			if(ros::param::get("~enable_orientation_smoother", enable_orientation_smoother) && enable_orientation_smoother)
+			if(ros::param::get("~enable_orientation_smoother", enable_orientation_smoother))
 			{
 				if(enable_orientation_smoother)
 				{
@@ -982,7 +982,7 @@ bool XdaInterface::configureSensorSettings()
 			if (isMTi680)
 			{
 				bool enable_position_velocity_smoother = false;
-				if(ros::param::get("~enable_position_velocity_smoother", enable_position_velocity_smoother) && enable_position_velocity_smoother)
+				if(ros::param::get("~enable_position_velocity_smoother", enable_position_velocity_smoother))
 				{
 					if(enable_position_velocity_smoother)
 					{
@@ -1011,7 +1011,7 @@ bool XdaInterface::configureSensorSettings()
 				}
 
 				bool enable_continuous_zero_rotation_update = false;
-				if(ros::param::get("~enable_continuous_zero_rotation_update", enable_continuous_zero_rotation_update) && enable_continuous_zero_rotation_update)
+				if(ros::param::get("~enable_continuous_zero_rotation_update", enable_continuous_zero_rotation_update))
 				{
 					if(enable_continuous_zero_rotation_update)
 					{
@@ -1087,7 +1087,7 @@ bool XdaInterface::configureSensorSettings()
 			}
 
 			bool enable_beidou = false;
-			if(ros::param::get("~enable_beidou", enable_beidou) && enable_beidou)
+			if(ros::param::get("~enable_beidou", enable_beidou))
 			{
 				if(enable_beidou)
 				{
