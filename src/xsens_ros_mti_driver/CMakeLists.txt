@@ -81,6 +81,10 @@ add_executable(
   src/ntrip_util.cpp
   src/xsens_time_handler.cpp
 )
+
+# Specify that xsens_mti_node needs to wait for message headers to be generated
+add_dependencies(xsens_mti_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 target_link_libraries(
 	xsens_mti_node
 	xscontroller
