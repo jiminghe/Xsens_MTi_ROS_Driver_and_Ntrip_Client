@@ -133,8 +133,6 @@ Please refer to [MTi Family Reference Manual](https://mtidocs.movella.com/mti-sy
 
 ## Troubleshooting
 
-- fatal error: `xsens_mti_driver/XsStatusWord.h : No such file or directory`
-    - If you had previously installed the official version of MTi ROS Driver, and if you manually delete the ``build`` and ``devel`` folders of your ``caktin_ws``, there could be errors, you could do catkin_make again to make it work. It is recommended to use `rm -rf build devel` under your catkin_ws, which ensures that the build and devel directories are completely removed, and forces `catkin_make` to start from scratch, properly setting up the build process and dependencies.
 - Refer to the [README.txt](./src/xsens_ros_mti_driver/README.txt)
 - nVidia Jetson devices, ref to [Interfacing MTi devices with the NVIDIA Jetson](https://base.movella.com/s/article/article/Interfacing-MTi-devices-with-the-NVIDIA-Jetson-1605870420176) 
 - Docs, ref code: [All MTi Related Documentation Links](https://base.movella.com/s/article/All-MTi-Related-Documentation-Links)
