@@ -43,12 +43,12 @@ XsensLogHandler::XsensLogHandler()
     const char *home = getenv("HOME");
     if (home)
     {
-        logDirectory = std::string(home) + "/Documents/xsens_log";
+        logDirectory = std::string(home) + "/xsens_log";
     }
     else
     {
-        std::cerr << "Warning: Cannot get HOME environment variable. Using default log directory." << std::endl;
-        logDirectory = "Documents/xsens_log"; // default if HOME can't be found
+        std::cerr << "Warning: Cannot get HOME environment variable. Using /tmp for log directory." << std::endl;
+        logDirectory = "/tmp/xsens_log"; // Use /tmp as a safer fallback
     }
 }
 
