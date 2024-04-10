@@ -43,12 +43,7 @@
 struct NMEAPublisher : public PacketCallback
 {
     rclcpp::Publisher<nmea_msgs::msg::Sentence>::SharedPtr pub;
-    rclcpp::TimerBase::SharedPtr timer;
-    rclcpp::Time m_timeStamp;
     std::string frame_id = DEFAULT_FRAME_ID;
-
-    XsDataPacket latest_packet; // to store the latest packet
-    bool new_data_available = false;
 
     NMEAPublisher(rclcpp::Node &node)
     {
@@ -57,48 +52,27 @@ struct NMEAPublisher : public PacketCallback
         node.get_parameter("frame_id", frame_id);
 
         pub = node.create_publisher<nmea_msgs::msg::Sentence>("/nmea", pub_queue_size);
-
-        
-
-        // Set up a timer to trigger every 1 second
-        timer = node.create_wall_timer(std::chrono::seconds(1), std::bind(&NMEAPublisher::timerCallback, this));
     }
 
-    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp) override
     {
-        latest_packet = packet; // Update the latest packet
-        m_timeStamp = timestamp;
-        new_data_available = true;
-    }
-
-    void timerCallback()
-    {
-        if (new_data_available)
-        {
-            processAndPublish(latest_packet);
-            new_data_available = false;
-        }
-    }
-
-    void processAndPublish(const XsDataPacket &packet)
-    {
-        nmea_msgs::msg::Sentence nmea_msg;
-        nmea_msg.header.stamp = m_timeStamp;
-        nmea_msg.header.frame_id = frame_id;
-
         if (packet.containsRawGnssPvtData())
         {
+            nmea_msgs::msg::Sentence nmea_msg;
+        
+            nmea_msg.header.stamp = timestamp;
+            nmea_msg.header.frame_id = frame_id;
+            
             XsRawGnssPvtData gnssPvtData = packet.rawGnssPvtData();
             std::string gga_buffer;
-            libntrip::generateGGA(gnssPvtData, &gga_buffer);
-
+            libntrip::generateGGA(packet, &gga_buffer);
+            
             nmea_msg.sentence = gga_buffer;
             pub->publish(nmea_msg);
         }
-        
     }
-
 };
 
 #endif
+
 
