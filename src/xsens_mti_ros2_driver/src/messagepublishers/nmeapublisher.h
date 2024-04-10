@@ -94,55 +94,8 @@ struct NMEAPublisher : public PacketCallback
 
             nmea_msg.sentence = gga_buffer;
             pub->publish(nmea_msg);
-
-            return; // If this block is executed, immediately return to avoid executing the next block
         }
-        else if (packet.containsUtcTime() && packet.containsLatitudeLongitude() && packet.containsStatus())
-        {
-            XsRawGnssPvtData gnssData;
-
-            XsTimeInfo utcTime = packet.utcTime();
-
-             // If the year is 1970, don't proceed with publishing.
-            if (utcTime.m_year == 1970)
-                return;
-
-            uint32_t status = packet.status();
-            bool gnssFix = status & (1 << 2);
-
-            uint8_t fixType;
-            if (gnssFix)
-            {
-                fixType = 0x03; // 3D-Fix
-            }
-            else
-            {
-                fixType = 0x00;
-            }
-
-            XsVector latLon = packet.latitudeLongitude();
-            int32_t longitude = static_cast<int32_t>(latLon[1] * 1e7);
-            int32_t latitude = static_cast<int32_t>(latLon[0] * 1e7);
-
-            gnssData.m_year = utcTime.m_year;
-            gnssData.m_month = utcTime.m_month;
-            gnssData.m_day = utcTime.m_day;
-            gnssData.m_hour = utcTime.m_hour;
-            gnssData.m_min = utcTime.m_minute;
-            gnssData.m_sec = utcTime.m_second;
-            gnssData.m_nano = utcTime.m_nano;
-            gnssData.m_valid = utcTime.m_valid;
-
-            gnssData.m_fixType = fixType;
-            gnssData.m_lon = longitude;
-            gnssData.m_lat = latitude;
-
-            std::string gga_buffer;
-            libntrip::generateGGA(gnssData, &gga_buffer);
-
-            nmea_msg.sentence = gga_buffer;
-            pub->publish(nmea_msg);
-        }
+        
     }
 
 };
