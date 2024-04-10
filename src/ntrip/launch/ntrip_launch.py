@@ -10,7 +10,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'ip': '120.253.239.161'},  # Change to the IP address of Your NTRIP service
-                {'port': 8001},  # Change to your port number
+                {'port': 8002},  # Change to your port number, WGS84
                 {'user': 'Your_User_Name'},  # Change to your username
                 {'passwd': 'Your_Password'},  # Change to your password
                 {'mountpoint': 'RTCM33_GRCE'},  # Change to your mountpoint
