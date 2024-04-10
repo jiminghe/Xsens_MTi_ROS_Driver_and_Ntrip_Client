@@ -89,7 +89,7 @@ ros2 launch xsens_mti_ros2_driver display.launch.py
 ```
 and then open another terminal
 ```
-roslaunch ntrip ntrip.launch
+ros2 launch ntrip ntrip_launch.py
 ```
 
 ## How to confirm your RTK Status
