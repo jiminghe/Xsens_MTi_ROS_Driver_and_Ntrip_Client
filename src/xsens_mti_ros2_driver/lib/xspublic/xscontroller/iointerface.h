@@ -103,7 +103,7 @@ public:
 		PO_XonXoffFlowControl	= (1 << 2),
 		PO_OneStopBit		= 0,
 		PO_TwoStopBits		= (1 << 3),
-		PO_XsensDefaults	= (PO_NoFlowControl | PO_TwoStopBits)
+		PO_XsensDefaults	= (PO_NoFlowControl | PO_OneStopBit)
 	};
 	// SerialInterface overridable functions
 	virtual XsResultValue open(const XsPortInfo& portInfo, XsFilePos readBufSize = XS_DEFAULT_READ_BUFFER_SIZE, XsFilePos writeBufSize = XS_DEFAULT_WRITE_BUFFER_SIZE, PortOptions options = PO_XsensDefaults);
