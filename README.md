@@ -1,3 +1,7 @@
+# UPDATE 2024-07-04
+
+This project won't update anymore.
+Project now lives here:  [xsenssupport/Xsens_MTi_ROS_Driver_and_Ntrip_Client](https://github.com/xsenssupport/Xsens_MTi_ROS_Driver_and_Ntrip_Client/).
 
 # Xsens MTi ROS Driver and Ntrip Client
 
